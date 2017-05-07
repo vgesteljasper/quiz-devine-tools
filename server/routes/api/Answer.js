@@ -2,35 +2,29 @@ const {Question, Answer} = require(`mongoose`).models;
 const Boom = require(`boom`);
 const Joi = require(`joi`);
 
-// GET answers by question ID
-  // params: [`question ID`]
-
-// POST anwser by question ID
-  // payload: [
-  //   {id: `question ID`},
-  //   {answer: `answer`},
-  //   {correct: `true/false`}
-  // ]
-
-// PUT updated answer by answer ID
-  // params: [`answer ID`]
-  // payload: [
-  //   { answer: `updated answer` },
-  //   { correct: true/false }
-  // ]
-
-// DELETE answer by answer ID
-  // params: [`answer ID`]
+const answerSchema = Joi.object().keys({
+  id: Joi.string().length(24).description(`ID of answer`).example(`590e165d3b8f8d41d8e2b145`),
+  created: Joi.date().description(`Date answer was created on`).example(`2017-05-06T18:30:53.391Z`),
+  modified: Joi.date().description(`Date answer was last modified on`).example(`2017-05-06T18:30:53.391Z`),
+  questionID: Joi.string().length(24).description(`ID of question this answer belongs to`).example(`590e165d3b8f8d41d8e2b145`),
+  answer: Joi.string().description(`The answer`).example(`Albert Einstein`),
+  correct: Joi.boolean().description(`Is the answer correct?`).example(true)
+});
 
 module.exports = [
   {
     method: `GET`,
     path: `/api/answer/{id}`,
     config: {
+      description: `Get all answers that belong to question ID`,
+      tags: [`api`],
       validate: {
         params: {
-          id: Joi.string().length(24).required()
+          id: Joi.string().length(24).required().description(`ID of question to find answers for.`).example(`590e165d3b8f8d41d8e2b145`)
         }
+      },
+      response: {
+        schema: Joi.array().items(answerSchema)
       },
       handler: (req, res) => {
         const {id} = req.params;
@@ -59,12 +53,17 @@ module.exports = [
     method: `POST`,
     path: `/api/answer`,
     config: {
+      description: `Post new answer`,
+      tags: [`api`],
       validate: {
         payload: {
-          id: Joi.string().length(24),
-          answer: Joi.string().required(),
-          correct: Joi.boolean().required()
+          id: Joi.string().length(24).required().description(`ID of question to link answer to`).example(`590e165d3b8f8d41d8e2b145`),
+          answer: Joi.string().required().description(`Answer`).example(`Who was the first king of Belgium?`),
+          correct: Joi.boolean().required().description(`Is correct answer?`).example(true)
         }
+      },
+      response: {
+        schema: answerSchema
       },
       handler: (req, res) => {
         const {id, answer, correct} = req.payload;
@@ -72,7 +71,7 @@ module.exports = [
         answerObj.save()
           .then(a => {
             const filteredAnswer = {id: a._id, created: a.created, modified: a.modified, answer: a.answer, correct: a.correct};
-            return res(filteredAnswer).code(200);
+            return res(filteredAnswer).code(201);
           })
           .catch(err => {
             if (err) console.log(err);
@@ -86,14 +85,19 @@ module.exports = [
     method: `PUT`,
     path: `/api/answer/{id}`,
     config: {
+      description: `Update answer`,
+      tags: [`api`],
       validate: {
         params: {
-          id: Joi.string().length(24)
+          id: Joi.string().length(24).description(`ID of answer to update`).example(`590e165d3b8f8d41d8e2b145`)
         },
         payload: {
-          answer: Joi.string().required(),
-          correct: Joi.boolean().required()
+          answer: Joi.string().required().description(`Answer`).example(`Who was the first king of Belgium?`),
+          correct: Joi.boolean().required().description(`Is answer correct?`).example(true)
         }
+      },
+      response: {
+        schema: answerSchema
       },
       handler: (req, res) => {
         const {answer, correct} = req.payload;
@@ -128,9 +132,11 @@ module.exports = [
     method: `DELETE`,
     path: `/api/answer/{id}`,
     config: {
+      description: `Delete answer`,
+      tags: [`api`],
       validate: {
         params: {
-          id: Joi.string().length(24)
+          id: Joi.string().length(24).description(`ID of answer to delete`).example(`590e165d3b8f8d41d8e2b145`)
         }
       },
       handler: (req, res) => {

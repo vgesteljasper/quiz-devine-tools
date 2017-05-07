@@ -1,10 +1,10 @@
 const path = require(`path`);
+const pkg = require(`./../package.json`);
 const log = true;
 
 require(`dotenv`).load({silent: true});
 
 const {PORT = 3000, URL, MONGO_URL} = process.env;
-
 const Server = require(`hapi`).Server;
 
 const server = new Server({
@@ -19,47 +19,54 @@ const server = new Server({
 
 server.connection({port: PORT});
 
-server.start(err => {
+console.log(``);
+console.log(`Server running at: ${URL}:${PORT}`);
 
-  if (err) return console.error(err);
+server.register({
+  register: require(`hapi-devine-autoload`),
+  options: {
 
-  console.log(``);
-  console.log(`Server running at: ${URL}:${PORT}`);
+    path: path.join(__dirname, `plugins`),
+    log,
 
-  server.register({
+    plugins: [
+      require(`hapi-devine-mongodb`),
+      require(`hapi-devine-routes`),
+      require(`inert`),
+      require(`vision`)
+    ],
 
-    register: require(`hapi-devine-autoload`),
+    pluginOptions: {
 
-    options: {
+      'hapi-devine-mongodb': {
+        connectionString: MONGO_URL,
+        log,
+        path: path.join(__dirname, `schemas`)
+      },
 
-      path: path.join(__dirname, `plugins`),
-      log,
+      'hapi-devine-routes': {
+        log,
+        path: path.join(__dirname, `routes`)
+      },
 
-      plugins: [
-        require(`hapi-devine-mongodb`),
-        require(`hapi-devine-routes`),
-        require(`inert`)
-      ],
-
-      pluginOptions: {
-
-        'hapi-devine-mongodb': {
-          connectionString: MONGO_URL,
-          log,
-          path: path.join(__dirname, `schemas`)
+      'hapi-swagger': {
+        info: {
+          title: `Devine Quiz Tool API`,
+          description: `API for interacting with the devine quiz tool.`,
+          version: pkg.version,
+          contact: {
+            name: `Jasper Van Gestel`
+          }
         },
-
-        'hapi-devine-routes': {
-          log,
-          path: path.join(__dirname, `routes`)
-        },
-
+        basePath: `/api/`
       }
 
     }
+  }
+}, error => {
+  if (error) return console.error(error);
+});
 
-  }, error => {
-    if (error) return console.error(error);
-  });
-
+server.start(err => {
+  if (err) return console.error(err);
 });

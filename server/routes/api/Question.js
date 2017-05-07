@@ -2,30 +2,27 @@ const {Question} = require(`mongoose`).models;
 const Boom = require(`boom`);
 const Joi = require(`joi`);
 
-// GET all questions by quiz ID
-
-// POST question for quiz
-  // payload: [
-  //   {id: `quiz ID`},
-  //   {question: `new question`}
-  // ]
-
-// PUT updated question by question ID
-  // params: [`question ID`]
-  // payload: [ {question: `updated question`} ]
-
-// DELETE question by question ID
-  // params: [`question ID`]
+const questionSchema = Joi.object().keys({
+  id: Joi.string().length(24).description(`ID of question`).example(`590e165d3b8f8d41d8e2b145`),
+  created: Joi.date().description(`Date question was created on`).example(`2017-05-06T18:30:53.391Z`),
+  modified: Joi.date().description(`Date question was last modified on`).example(`2017-05-06T18:30:53.391Z`),
+  question: Joi.string().description(`The question`).example(`Who was the first king of Belgium?`)
+});
 
 module.exports = [
   {
     method: `GET`,
     path: `/api/question/{id}`,
     config: {
+      description: `Get all questions that belong to quiz ID`,
+      tags: [`api`],
       validate: {
         params: {
-          id: Joi.string().length(24).required()
+          id: Joi.string().length(24).required().description(`ID of quiz to get questions for`).example(`590e165d3b8f8d41d8e2b145`)
         }
+      },
+      response: {
+        schema: Joi.array().items(questionSchema)
       },
       handler: (req, res) => {
         const {id} = req.params;
@@ -43,11 +40,16 @@ module.exports = [
     method: `POST`,
     path: `/api/question`,
     config: {
+      description: `Post new question`,
+      tags: [`api`],
       validate: {
         payload: {
-          id: Joi.string().length(24).required(),
-          question: Joi.string().required()
+          id: Joi.string().length(24).required().description(`ID of quiz to post answer to`).example(`590e165d3b8f8d41d8e2b145`),
+          question: Joi.string().required().description(`The question`).example(`Who was the first king of Belgium?`)
         }
+      },
+      response: {
+        schema: questionSchema
       },
       handler: (req, res) => {
         const {id, question} = req.payload;
@@ -55,7 +57,7 @@ module.exports = [
         if (!question) return res(Boom.badRequest(`No question provided.`));
         const questionObj = new Question({quizID: id, question});
         questionObj.save()
-          .then(question => res(question).code(200))
+          .then(question => res(question).code(201))
           .catch(err => {
             console.log(err);
             return res({statusCode: 500, error: `Something went wrong creating new question.`}).code(500);
@@ -67,13 +69,18 @@ module.exports = [
     method: `PUT`,
     path: `/api/question/{id}`,
     config: {
+      description: `Update question`,
+      tags: [`api`],
       validate: {
         params: {
-          id: Joi.string().length(24).required()
+          id: Joi.string().length(24).required().description(`ID of question to update`).example(`590e165d3b8f8d41d8e2b145`)
         },
         payload: {
-          question: Joi.string().required()
+          question: Joi.string().required().description(`The question`).example(`WHo was the first king of Belgium?`)
         }
+      },
+      response: {
+        schema: questionSchema
       },
       handler: (req, res) => {
         const {id} = req.params;
@@ -100,9 +107,11 @@ module.exports = [
     method: `DELETE`,
     path: `/api/question/{id}`,
     config: {
+      description: `Delete question`,
+      tags: [`api`],
       validate: {
         params: {
-          id: Joi.string().length(24).required()
+          id: Joi.string().length(24).required().description(`ID of question to delete`).example(`590e165d3b8f8d41d8e2b145`)
         }
       },
       handler: (req, res) => {

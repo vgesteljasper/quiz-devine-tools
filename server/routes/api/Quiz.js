@@ -2,32 +2,31 @@ const {Quiz, Question, Answer} = require(`mongoose`).models;
 const Boom = require(`boom`);
 const Joi = require(`joi`);
 
-// GET all quezzes
-
-// GET quiz + questions + answers by quiz ID
-  // params: [`quiz ID`]
-
-// POST new quiz
-  // payload: [ {name: `quiz name`} ]
-
-// PUT updated quiz by quiz ID
-  // params: [`quiz ID`]
-  // payload: [ {name: `updated quiz name`} ]
-
-// DELETE quiz by quiz ID
-  // params: [`quiz ID`]
+const quizSchema = Joi.object().keys({
+  id: Joi.string().length(24).description(`ID of quiz`).example(`590e165d3b8f8d41d8e2b145`),
+  created: Joi.date().description(`Date quiz was created on`).example(`2017-05-06T18:30:53.391Z`),
+  modified: Joi.date().description(`Date quiz was last modified on`).example(`2017-05-06T18:30:53.391Z`),
+  name: Joi.string().description(`Name of quiz`).example(`Week 7 JavaScript Quiz`)
+});
 
 module.exports = [
   {
     method: `GET`,
     path: `/api/quiz`,
-    handler: (req, res) => {
-      Quiz.find({isActive: true})
-        .then(quizzes => {
-          const filteredQuizzes = [];
-          quizzes.forEach(q => filteredQuizzes.push({id: q._id, created: q.created, modified: q.modified, name: q.name}));
-          return res(filteredQuizzes).code(200);
-        });
+    config: {
+      description: `Get all quizzes`,
+      tags: [`api`],
+      response: {
+        schema: Joi.array().items(quizSchema)
+      },
+      handler: (req, res) => {
+        Quiz.find({isActive: true})
+          .then(quizzes => {
+            const filteredQuizzes = [];
+            quizzes.forEach(q => filteredQuizzes.push({id: q._id, created: q.created, modified: q.modified, name: q.name}));
+            return res(filteredQuizzes).code(200);
+          });
+      }
     }
   },
   {
@@ -99,7 +98,7 @@ module.exports = [
         quizObj.save()
           .then(quiz => {
             const filteredQuiz = {id: quiz._id, created: quiz.created, modified: quiz.modified, name: quiz.name};
-            return res(filteredQuiz).code(200);
+            return res(filteredQuiz).code(201);
           })
           .catch(err => {
             if (err) console.log(err);
