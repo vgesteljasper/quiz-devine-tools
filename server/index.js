@@ -57,7 +57,6 @@ server.register({
           contact: {
             name: `Jasper Van Gestel`
           }
-
         },
         documentationPath: `/api/documentation`,
         sortEndpoints: `method`,
