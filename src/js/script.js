@@ -3,16 +3,17 @@
 import React from 'react';
 import {render} from 'react-dom';
 import App from './containers/App';
+import {Provider} from 'mobx-react';
 
 import store from './store/';
 
 const init = () => {
-
   render(
-    <App store={store} />,
+    <Provider store={store}>
+      <App />
+    </Provider>,
     document.querySelector(`.react-mount`)
   );
-
 };
 
 init();

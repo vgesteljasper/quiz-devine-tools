@@ -1,28 +1,38 @@
-import React from 'react';
+import React, {Component} from 'react';
+import {BrowserRouter as Router} from 'react-router-dom';
+// import {observer, inject, PropTypes} from 'mobx-react';
+// import DevTools from 'mobx-react-devtools';
 
-import {PropTypes as MPropTypes, observer} from 'mobx-react';
-import DevTools from 'mobx-react-devtools';
+import routes from './../routes/';
 
-const App = ({store}) => {
+// import Header from './../components/Header/';
+// import Quizzes from './../components/Quizzes';
+// import Add from './../components/Add/';
 
-  const {name} = store;
+// const App = ({store}) => {
+//
+//   return (
+//     <div>
+//       {/* {process.env.NODE_ENV !== `production` ? <DevTools /> : null} */}
+//       <Header />
+//       <Quizzes />
+//       {
+//         store.isCreating
+//           ? <Add />
+//           : null
+//       }
+//     </div>
+//   );
+//
+// };
 
-  return (
-    <section>
+class App extends Component {
 
-      {process.env.NODE_ENV !== `production` ? <DevTools /> : null}
+  state = {}
 
-      <header>
-        <h1>Hello, {name}</h1>
-      </header>
+  render() {
+    return <Router routes={routes} />;
+  }
+}
 
-    </section>
-  );
-
-};
-
-App.propTypes = {
-  store: MPropTypes.observableObject.isRequired
-};
-
-export default observer(App);
+export default App;

@@ -18,5 +18,16 @@ module.exports = [
         path: `../uploads`
       }
     }
+  },
+  {
+    method: `GET`,
+    path: `/quiz/{params*}`,
+    handler: {
+      directory: {
+        path: `.`,
+        redirectToSlash: true,
+        index: true
+      }
+    }
   }
 ];
