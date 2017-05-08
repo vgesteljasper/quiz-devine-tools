@@ -1,4 +1,4 @@
-const {Answer} = require(`mongoose`).models;
+const {Answer, Question} = require(`mongoose`).models;
 const Boom = require(`boom`);
 const Joi = require(`joi`);
 Joi.objectId = require(`joi-objectid`)(Joi);
@@ -15,13 +15,13 @@ const answerSchema = Joi.object().keys({
 
 const GET = {
   method: `GET`,
-  path: `/api/answer/{id}`,
+  path: `/api/answer/{questionId}`,
   config: {
     description: `Get all answers that belong to question ID`,
     tags: [`api`, `get`],
     validate: {
       params: {
-        id: Joi.objectId().description(`ID of question to find answers for.`).example(`590e165d3b8f8d41d8e2b145`).required()
+        questionId: Joi.objectId().description(`ID of question to find answers for.`).example(`590e165d3b8f8d41d8e2b145`).required()
       }
     },
     response: {
@@ -37,8 +37,8 @@ const GET = {
       }
     },
     handler: (req, res) => {
-      const {id} = req.params;
-      Answer.find({questionID: id, isActive: true}, (err, answers) => {
+      const {questionId} = req.params;
+      Answer.find({questionId, isActive: true}, (err, answers) => {
         if (err) {
           console.log(err);
           return res(Boom.badImplementation(`An internal server error occurred`));
@@ -66,7 +66,7 @@ const POST = {
     tags: [`api`, `post`],
     validate: {
       payload: {
-        questionID: Joi.objectId().description(`ID of question to link answer to`).example(`590e165d3b8f8d41d8e2b145`).required(),
+        questionId: Joi.objectId().description(`ID of question to link answer to`).example(`590e165d3b8f8d41d8e2b145`).required(),
         answer: Joi.string().description(`Answer`).example(`Who was the first king of Belgium?`).required(),
         correct: Joi.boolean().description(`Is correct answer?`).example(true).required()
       }
@@ -78,20 +78,31 @@ const POST = {
       'hapi-swagger': {
         responses: {
           200: {description: `Success`},
+          400: {description: `Not Found`},
           500: {description: `An internal server error occurred`}
         }
       }
     },
     handler: (req, res) => {
-      const {questionID, answer, correct} = req.payload;
-      const answerObj = new Answer({questionID, answer, correct});
-      answerObj.save((err, a) => {
+      const {questionId, answer, correct} = req.payload;
+      Question.findOne({_id: questionId, isActive: true}, (err, question) => {
         if (err) {
           console.log(err);
           return res(Boom.badImplementation(`An internal server error occurred`));
         }
-        const filteredAnswer = {id: a._id, created: a.created, modified: a.modified, answer: a.answer, correct: a.correct};
-        return res(filteredAnswer).code(200);
+        if (question) {
+          const answerObj = new Answer({questionId, answer, correct});
+          answerObj.save((err, a) => {
+            if (err) {
+              console.log(err);
+              return res(Boom.badImplementation(`An internal server error occurred`));
+            }
+            const filteredAnswer = {id: a._id, created: a.created, modified: a.modified, answer: a.answer, correct: a.correct};
+            return res(filteredAnswer).code(200);
+          });
+        } else {
+          return res(Boom.notFound(`Question you are trying to post answer to doesn't exist`));
+        }
       });
     }
   }

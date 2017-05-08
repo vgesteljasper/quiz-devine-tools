@@ -1,5 +1,5 @@
 const mongoose = require(`mongoose`);
-const {Question} = mongoose.models;
+const {Question, Quiz} = mongoose.models;
 const Boom = require(`boom`);
 const Joi = require(`joi`);
 Joi.objectId = require(`joi-objectid`)(Joi);
@@ -15,13 +15,13 @@ const questionSchema = Joi.object().keys({
 
 const GET = {
   method: `GET`,
-  path: `/api/question/{id}`,
+  path: `/api/question/{quizId}`,
   config: {
     description: `Get all questions that belong to quiz ID`,
     tags: [`api`, `get`],
     validate: {
       params: {
-        id: Joi.objectId().description(`ID of quiz to get questions for`).example(`590e165d3b8f8d41d8e2b145`).required()
+        quizId: Joi.objectId().description(`ID of quiz to get questions for`).example(`590e165d3b8f8d41d8e2b145`).required()
       }
     },
     response: {
@@ -37,13 +37,13 @@ const GET = {
       }
     },
     handler: (req, res) => {
-      const {id} = req.params;
-      Question.find({quizID: id, isActive: true}, (err, questions) => {
+      const {quizId} = req.params;
+      Question.find({quizId, isActive: true}, (err, questions) => {
         if (err) {
           console.log(err);
           return res(Boom.badImplementation(`An internal server error occurred`));
         }
-        if (questions) {
+        if (questions.length > 0) {
           const filteredQuestions = [];
           questions.forEach(q => {
             filteredQuestions.push({id: q._id, created: q.created, modified: q.modified, question: q.question});
@@ -66,7 +66,7 @@ const POST = {
     tags: [`api`, `post`],
     validate: {
       payload: {
-        id: Joi.objectId().description(`ID of quiz to post answer to`).example(`590e165d3b8f8d41d8e2b145`).required(),
+        quizId: Joi.objectId().description(`ID of quiz to post answer to`).example(`590e165d3b8f8d41d8e2b145`).required(),
         question: Joi.string().description(`The question`).example(`Who was the first king of Belgium?`).required()
       }
     },
@@ -82,15 +82,25 @@ const POST = {
       }
     },
     handler: (req, res) => {
-      const {id, question} = req.payload;
-      const questionObj = new Question({quizID: id, question});
-      questionObj.save((err, q) => {
+      const {quizId, question} = req.payload;
+      Quiz.findOne({_id: quizId, isActive: true}, (err, quiz) => {
         if (err) {
           console.log(err);
           return res(Boom.badImplementation(`An internal server error occurred`));
         }
-        const filteredQuestion = {id: q._id, created: q.created, modified: q.modified, question: q.question};
-        return res(filteredQuestion).code(200);
+        if (quiz) {
+          const questionObj = new Question({quizId, question});
+          questionObj.save((err, q) => {
+            if (err) {
+              console.log(err);
+              return res(Boom.badImplementation(`An internal server error occurred`));
+            }
+            const filteredQuestion = {id: q._id, created: q.created, modified: q.modified, question: q.question};
+            return res(filteredQuestion).code(200);
+          });
+        } else {
+          return res(Boom.notFound(`Quiz you are trying to post question to doesn't exist`));
+        }
       });
     }
   }

@@ -1,10 +1,11 @@
 const Joi = require(`joi`);
+Joi.objectId = require(`joi-objectid`)(Joi);
 
 const schema = {
-  quizID: {
+  quizId: {
     type: String,
     require: true,
-    validation: Joi.string().length(24).required()
+    validation: Joi.objectId().required()
   },
   question: {
     type: String,

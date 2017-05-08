@@ -1,4 +1,4 @@
-const {Quiz, Question} = require(`mongoose`).models;
+const {Quiz} = require(`mongoose`).models;
 const Boom = require(`boom`);
 const Joi = require(`joi`);
 Joi.objectId = require(`joi-objectid`)(Joi);
@@ -51,60 +51,74 @@ const GETALL = {
 };
 
 
-const GETCOMPLETE = {
-  method: `GET`,
-  path: `/api/quiz/{id}`,
-  config: {
-    description: `Get complete quiz by quiz id`,
-    tags: [`api`, `get`],
-    validate: {
-      params: {
-        id: Joi.objectId().description(`ID of the quiz to get`).example(`590e165d3b8f8d41d8e2b145`).required()
-      }
-    },
-    // response: {
-    //   schema: Joi.array().items(quizSchema)
-    // },
-    plugins: {
-      'hapi-swagger': {
-        responses: {
-          200: {description: `Success`},
-          404: {description: `Not Found`},
-          500: {description: `An internal server error occurred`}
-        }
-      }
-    },
-    handler: (req, res) => {
-      const {id} = req.params;
-      Quiz.findOne({_id: id, isActive: true}, (err, q) => {
-        if (err) {
-          console.log(err);
-          return res(Boom.badImplementation(`An internal server error occurred`));
-        }
-        if (q) {
-          const filteredQuiz = {id: q._id, created: q.created, modified: q.modified, name: q.name};
-          Question.find({quizID: id, isActive: true}, (err, questions) => {
-            if (err) {
-              console.log(err);
-              return res(Boom.badImplementation(`An internal server error occurred`));
-            }
-            if (questions.length > 0) {
-              const filteredQuestions = [];
-              questions.forEach(a => {
-                const filteredQuestion = {id: a._id, created: a.created, modified: a.modified, question: a.question};
-                filteredQuestions.push(filteredQuestion);
-              });
-              filteredQuiz.questions = filteredQuestions;
-            }
-            return res(filteredQuiz).code(200);
-          });
-        } else {
-          return res(Boom.notFound(`No quizzes found`));
-        }
-      });
-    }
-  }
-};
+// const GETCOMPLETE = {
+//   method: `GET`,
+//   path: `/api/quiz/{id}`,
+//   config: {
+//     description: `Get complete quiz by quiz id`,
+//     tags: [`api`, `get`],
+//     validate: {
+//       params: {
+//         id: Joi.objectId().description(`ID of the quiz to get`).example(`590e165d3b8f8d41d8e2b145`).required()
+//       }
+//     },
+//     // response: {
+//     //   schema: Joi.array().items(quizSchema)
+//     // },
+//     plugins: {
+//       'hapi-swagger': {
+//         responses: {
+//           200: {description: `Success`},
+//           404: {description: `Not Found`},
+//           500: {description: `An internal server error occurred`}
+//         }
+//       }
+//     },
+//     handler: (req, res) => {
+//       const {id} = req.params;
+//       Quiz.findOne({_id: id, isActive: true}, (err, q) => {
+//         if (err) {
+//           console.log(err);
+//           return res(Boom.badImplementation(`An internal server error occurred`));
+//         }
+//         if (q) {
+//           const filteredQuiz = {id: q._id, created: q.created, modified: q.modified, name: q.name};
+//           Question.find({quizID: id, isActive: true}, (err, questions) => {
+//             if (err) {
+//               console.log(err);
+//               return res(Boom.badImplementation(`An internal server error occurred`));
+//             }
+//             if (questions.length > 0) {
+//               const filteredQuestions = [];
+//               questions.forEach(a => {
+//                 const filteredQuestion = {id: a._id, created: a.created, modified: a.modified, question: a.question};
+//                 Answer.find({questionID: filteredQuestion.id, isActive: true}, (err, answers) => {
+//                   if (err) {
+//                     console.log(err);
+//                     return res(Boom.badImplementation(`An internal server error occurred`));
+//                   }
+//                   if (answers.length > 0) {
+//                     filteredQuestion.answers = `HELLOW!`;
+//                   }
+//
+//                   filteredQuestions.push(filteredQuestion);
+//                   filteredQuiz.questions = filteredQuestions;
+//                   return res(filteredQuiz).code(200);
+//                 });
+//
+//               });
+//
+//             } else {
+//               return res(filteredQuiz).code(200);
+//             }
+//           });
+//         } else {
+//           return res(Boom.notFound(`No quizzes found`));
+//         }
+//       });
+//     }
+//   }
+// };
 
 
 const POST = {
@@ -225,4 +239,4 @@ const DELETE = {
 };
 
 
-module.exports = [GETALL, GETCOMPLETE, POST, PUT, DELETE];
+module.exports = [GETALL, POST, PUT, DELETE];
