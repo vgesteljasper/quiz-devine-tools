@@ -10,7 +10,7 @@ body {
 }
 
 .width-limit,
-.quizzes {
+.content {
   width: 96rem;
   margin: 0 auto;
 }
@@ -24,6 +24,8 @@ body {
   padding: 1rem 2rem;
   font-size: 1.2rem;
   font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
 
   &:hover {
     cursor: pointer;
@@ -69,40 +71,38 @@ body {
   &__title {
     font-size: 2.2rem;
     font-weight: 300;
+    color: white;
+    text-decoration: none;
   }
 }
 
-.quizzes {
+.content {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+
+  &__top-bar {
+    margin: 0 0 4rem;
+  }
+}
+
+.quiz-list {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 .quiz {
-  width: calc(50% - 1rem);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  width: calc(50% - 1rem);
   background-color: #f2f2f2;
   border-radius: .2rem;
-  margin: 2rem 0;
+  margin: 0  0 2rem;
   padding: 3rem;
-
-  &:hover {
-    background-color: #e6e6e6;
-    cursor: pointer;
-  }
-
-  &__name {
-    font-size: 1.8rem;
-  }
-
-  &__date {
-    font-size: 1.2rem;
-    color: #777;
-    padding: .5rem 0 0;
-  }
+  text-decoration: none;
 
   &:nth-child(2n+1) {
     margin-right: 1rem;
@@ -110,6 +110,76 @@ body {
 
   &:nth-child(2n+2) {
     margin-left: 1rem;
+  }
+
+  &:hover {
+    background-color: #e6e6e6;
+    cursor: pointer;
+  }
+
+  &__name {
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: black;
+  }
+
+  &__date {
+    font-size: 1.4rem;
+    color: #777;
+    padding: 1rem 0 0;
+  }
+}
+
+.quiz-detail {
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #b8b8b8;
+    margin-bottom: 6rem;
+  }
+
+  &__title {
+    font-size: 2.2rem;
+    font-weight: 300;
+  }
+
+  &__date {
+    font-size: 1.4rem;
+    color: #777;
+    padding: 1rem 0 0;
+  }
+
+  &__question-list {
+    margin: 0 0 7rem;
+  }
+
+  &__question {
+    font-size: 2rem;
+    font-weight: 500;
+  }
+
+  &__answer-list {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  &__answer {
+    width: auto;
+    margin-right: 2rem;
+    padding: 1rem 2rem;
+    background-color: #f2f2f2;
+    border-radius: .2rem;
+
+    &:hover {
+      background-color: #e6e6e6;
+      cursor: pointer;
+    }
   }
 }
 

@@ -1,23 +1,36 @@
 /* eslint-disable react/jsx-filename-extension */
-
 import React from 'react';
+import {inject, observer, PropTypes} from 'mobx-react';
 import {string} from 'prop-types';
+import {Link} from 'react-router-dom';
 
-import {toDate} from './../../lib/dateFormat';
+import Title from './Title';
+import Created from './Created';
+import QuestionList from './QuestionList';
 
-const Quiz = ({created, name}) => {
+const Quiz = ({store, id}) => {
+
+  const {created, name, questions} = store.quizzes.find(q => q.id === id);
 
   return (
-    <div className='quiz'>
-      <h2 className='quiz__name'>{name}</h2>
-      <span className='quiz__date'>{toDate(created)}</span>
-    </div>
+    <main className='content'>
+      <div className='content__top-bar'>
+        <Link to='/' className='button button_red'>&lt; Back to overview</Link>
+      </div>
+      <section className='quiz-detail'>
+        <div className='quiz-detail__info'>
+          <Title value={name} />
+          <Created value={created} />
+        </div>
+        <QuestionList questions={questions} />
+      </section>
+    </main>
   );
 };
 
 Quiz.propTypes = {
-  created: string.isRequired,
-  name: string.isRequired
+  store: PropTypes.observableObject.isRequired,
+  id: string.isRequired
 };
 
-export default Quiz;
+export default inject(`store`)(observer(Quiz));

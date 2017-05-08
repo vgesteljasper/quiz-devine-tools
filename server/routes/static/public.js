@@ -21,11 +21,11 @@ module.exports = [
   },
   {
     method: `GET`,
-    path: `/quiz/{params*}`,
+    path: `/quiz/{param*}`,
     handler: {
       directory: {
         path: `.`,
-        redirectToSlash: true,
+        redirectToSlash: false,
         index: true
       }
     }

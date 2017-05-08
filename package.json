@@ -61,6 +61,7 @@
     "prop-types": "^15.5.0",
     "react": "^15.5.0",
     "react-dom": "^15.5.0",
+    "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
     "rimraf": "^2.5.4",
     "style-loader": "^0.13.1",
