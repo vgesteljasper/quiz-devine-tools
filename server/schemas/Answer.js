@@ -4,17 +4,17 @@ const schema = {
   questionID: {
     type: String,
     require: true,
-    validation: Joi.string().length(24)
+    validation: Joi.string().length(24).required()
   },
   answer: {
     type: String,
     required: true,
-    validation: Joi.string()
+    validation: Joi.string().required()
   },
   correct: {
     type: Boolean,
     required: true,
-    validation: Joi.boolean()
+    validation: Joi.boolean().required()
   }
 };
 

@@ -1,181 +1,228 @@
-const {Quiz, Question, Answer} = require(`mongoose`).models;
+const {Quiz, Question} = require(`mongoose`).models;
 const Boom = require(`boom`);
 const Joi = require(`joi`);
+Joi.objectId = require(`joi-objectid`)(Joi);
+
 
 const quizSchema = Joi.object().keys({
-  id: Joi.string().length(24).description(`ID of quiz`).example(`590e165d3b8f8d41d8e2b145`),
-  created: Joi.date().description(`Date quiz was created on`).example(`2017-05-06T18:30:53.391Z`),
-  modified: Joi.date().description(`Date quiz was last modified on`).example(`2017-05-06T18:30:53.391Z`),
-  name: Joi.string().description(`Name of quiz`).example(`Week 7 JavaScript Quiz`)
+  id: Joi.description(`ID of quiz`).example(`590e165d3b8f8d41d8e2b145`).required(),
+  created: Joi.date().description(`Date quiz was created on`).example(`2017-05-06T18:30:53.391Z`).required(),
+  modified: Joi.date().description(`Date quiz was last modified on`).example(`2017-05-06T18:30:53.391Z`).required(),
+  name: Joi.string().description(`Name of quiz`).example(`Week 7 JavaScript Quiz`).required()
 });
 
-module.exports = [
-  {
-    method: `GET`,
-    path: `/api/quiz`,
-    config: {
-      description: `Get all quizzes`,
-      tags: [`api`],
-      response: {
-        schema: Joi.array().items(quizSchema)
-      },
-      handler: (req, res) => {
-        Quiz.find({isActive: true})
-          .then(quizzes => {
-            const filteredQuizzes = [];
-            quizzes.forEach(q => filteredQuizzes.push({id: q._id, created: q.created, modified: q.modified, name: q.name}));
-            return res(filteredQuizzes).code(200);
+
+const GETALL = {
+  method: `GET`,
+  path: `/api/quiz`,
+  config: {
+    description: `Get all quizzes`,
+    tags: [`api`, `get`],
+    response: {
+      schema: Joi.array().items(quizSchema)
+    },
+    plugins: {
+      'hapi-swagger': {
+        responses: {
+          200: {description: `Success`},
+          404: {description: `Not Found`},
+          500: {description: `An internal server error occurred`}
+        }
+      }
+    },
+    handler: (req, res) => {
+      Quiz.find({isActive: true}, (err, quizzes) => {
+        if (err) {
+          console.log(err);
+          return res(Boom.badImplementation(`An internal server error occurred`));
+        }
+        if (quizzes.length > 0) {
+          const filteredQuizzes = [];
+          quizzes.forEach(q => {
+            filteredQuizzes.push({id: q._id, created: q.created, modified: q.modified, name: q.name});
           });
-      }
-    }
-  },
-  {
-    method: `GET`,
-    path: `/api/quiz/{id}`,
-    config: {
-      validate: {
-        params: {
-          id: Joi.string().length(24).required()
+          return res(filteredQuizzes).code(200);
+        } else {
+          return res(Boom.notFound(`No quizzes found`));
         }
-      },
-      handler: (req, res) => {
-        const {id} = req.params;
-        Quiz.findById(id, (err, foundQuiz) => {
-          if (err) {
-            console.log(err);
-            return res(Boom.notFound(`Quiz doesn't exist.`));
-          }
-          if (foundQuiz) {
-            if (!foundQuiz.isActive) {
-              return res(Boom.notFound(`Quiz doesn't exist.`));
-            } else {
-              const quizObj = {id: foundQuiz._id, created: foundQuiz.created, modified: foundQuiz.modified, name: foundQuiz.name};
-              const questionsArr = [];
-              Question.find({quizID: id, isActive: true})
-                .then(questions => {
-                  questions.forEach(q => {
-                    const questionObj = {id: q._id, created: q.created, modified: q.modified, question: q.question};
-                    Answer.find({questionID: questionObj.id, isActive: true})
-                      .then(foundAnswers => {
-                        const answersArr = [];
-                        foundAnswers.forEach(a => answersArr.push({id: a._id, created: a.created, modified: a.modified, answer: a.answer, correct: a.correct}));
-                        return answersArr;
-                      })
-                      .then(answers => {
-                        questionObj.answers = answers;
-                        questionsArr.push(questionObj);
-                        quizObj.questions = questionsArr;
-                        return res(quizObj).code(200);
-                      })
-                      .catch(err => {
-                        if (err) console.log(err);
-                        return res(quizObj).code(200);
-                      });
-                  });
-                })
-                .catch(err => {
-                  if (err) console.log(err);
-                  res(quizObj).code(200);
-                });
-            }
-          }
-        });
-      }
-    }
-  },
-  {
-    method: `POST`,
-    path: `/api/quiz`,
-    config: {
-      validate: {
-        payload: {
-          name: Joi.string().required()
-        }
-      },
-      handler: (req, res) => {
-        const {name} = req.payload;
-        const quizObj = new Quiz({name});
-        quizObj.save()
-          .then(quiz => {
-            const filteredQuiz = {id: quiz._id, created: quiz.created, modified: quiz.modified, name: quiz.name};
-            return res(filteredQuiz).code(201);
-          })
-          .catch(err => {
-            if (err) console.log(err);
-            return res({statusCode: 500, error: `Something went wrong creating new quiz.`}).code(500);
-          });
-      }
-    }
-  },
-  {
-    method: `PUT`,
-    path: `/api/quiz/{id}`,
-    config: {
-      validate: {
-        params: {
-          id: Joi.string().length(24).required()
-        },
-        payload: {
-          name: Joi.string().required()
-        }
-      },
-      handler: (req, res) => {
-        const {id} = req.params;
-        const {name} = req.payload;
-        if (!name) return res(Boom.badRequest(`No name provided.`));
-        Quiz.findById(id, (err, foundObj) => {
-          if (err) {
-            console.log(err);
-            return res(Boom.notFound(`quiz doesn't exist.`));
-          }
-          if (foundObj) {
-            if (!foundObj.isActive) {
-              return res(Boom.notFound(`quiz doesn't exist.`));
-            } else {
-              foundObj.name = name;
-              foundObj.save()
-                .then(quiz => res(quiz).code(200))
-                .catch(err => {
-                  if (err) console.log(err);
-                  return res({statusCode: 500, error: `Something went wrong updating this quiz.`}).code(500);
-                });
-            }
-          }
-        });
-      }
-    }
-  },
-  {
-    method: `DELETE`,
-    path: `/api/quiz/{id}`,
-    config: {
-      validate: {
-        params: {
-          id: Joi.string().length(24).required()
-        }
-      },
-      handler: (req, res) => {
-        const {id} = req.params;
-        Quiz.findById(id, (err, foundObj) => {
-          if (err) {
-            console.log(err);
-            return res(Boom.notFound(`Quiz doesn't exist.`));
-          }
-          if (foundObj) {
-            if (!foundObj.isActive) {
-              return res(Boom.notFound(`Quiz doesn't exist.`));
-            } else {
-              foundObj.isActive = false;
-              foundObj.save()
-                .then(() => res({statusCode: 200, message: `Quiz deleted.`}).code(200))
-                .catch(err => {
-                  if (err) console.log(err);
-                  return res({statusCode: 500, error: `Something went wrong deleting this quiz.`}).code(500);
-                });
-            }
-          }
-        });
-      }
+      });
     }
   }
-];
+};
+
+
+const GETCOMPLETE = {
+  method: `GET`,
+  path: `/api/quiz/{id}`,
+  config: {
+    description: `Get complete quiz by quiz id`,
+    tags: [`api`, `get`],
+    validate: {
+      params: {
+        id: Joi.objectId().description(`ID of the quiz to get`).example(`590e165d3b8f8d41d8e2b145`).required()
+      }
+    },
+    // response: {
+    //   schema: Joi.array().items(quizSchema)
+    // },
+    plugins: {
+      'hapi-swagger': {
+        responses: {
+          200: {description: `Success`},
+          404: {description: `Not Found`},
+          500: {description: `An internal server error occurred`}
+        }
+      }
+    },
+    handler: (req, res) => {
+      const {id} = req.params;
+      Quiz.findOne({_id: id, isActive: true}, (err, q) => {
+        if (err) {
+          console.log(err);
+          return res(Boom.badImplementation(`An internal server error occurred`));
+        }
+        if (q) {
+          const filteredQuiz = {id: q._id, created: q.created, modified: q.modified, name: q.name};
+          Question.find({quizID: id, isActive: true}, (err, questions) => {
+            if (err) {
+              console.log(err);
+              return res(Boom.badImplementation(`An internal server error occurred`));
+            }
+            if (questions.length > 0) {
+              const filteredQuestions = [];
+              questions.forEach(a => {
+                const filteredQuestion = {id: a._id, created: a.created, modified: a.modified, question: a.question};
+                filteredQuestions.push(filteredQuestion);
+              });
+              filteredQuiz.questions = filteredQuestions;
+            }
+            return res(filteredQuiz).code(200);
+          });
+        } else {
+          return res(Boom.notFound(`No quizzes found`));
+        }
+      });
+    }
+  }
+};
+
+
+const POST = {
+  method: `POST`,
+  path: `/api/quiz`,
+  config: {
+    description: `Post new quiz`,
+    tags: [`api`, `post`],
+    validate: {
+      payload: {
+        name: Joi.string().description(`Name of the quiz to create`).example(`Week 7 JavaScript Quiz`).required()
+      }
+    },
+    response: {
+      schema: quizSchema
+    },
+    plugins: {
+      'hapi-swagger': {
+        responses: {
+          200: {description: `Success`},
+          500: {description: `An internal server error occurred`}
+        }
+      }
+    },
+    handler: (req, res) => {
+      const {name} = req.payload;
+      const quizObj = new Quiz({name});
+      quizObj.save((err, q) => {
+        if (err) {
+          console.log(err);
+          return res(Boom.badImplementation(`An internal server error occurred`));
+        }
+        const filteredQuiz = {id: q._id, created: q.created, modified: q.modified, name: q.name};
+        return res(filteredQuiz).code(200);
+      });
+    }
+  }
+};
+
+
+const PUT = {
+  method: `PUT`,
+  path: `/api/quiz/{id}`,
+  config: {
+    description: `Update quiz`,
+    tags: [`api`, `put`],
+    validate: {
+      params: {
+        id: Joi.objectId().description(`ID of quiz to update`).example(`590e165d3b8f8d41d8e2b145`).required()
+      },
+      payload: {
+        name: Joi.string().description(`New name for quiz`).example(`Week 7 JavaScript Quiz`).required()
+      }
+    },
+    plugins: {
+      'hapi-swagger': {
+        responses: {
+          200: {description: `Success`},
+          404: {description: `Not Found`},
+          500: {description: `An internal server error occurred`}
+        }
+      }
+    },
+    handler: (req, res) => {
+      const {id} = req.params;
+      const {name} = req.payload;
+      Quiz.findOneAndUpdate({_id: id, isActive: true}, {$set: {name}}, (err, q) => {
+        if (err) {
+          console.log(err);
+          return res(Boom.badImplementation(`An internal server error occurred`));
+        }
+        if (q) {
+          return res().code(200);
+        } else {
+          return res(Boom.notFound(`Quiz with this ID couldn't be found`));
+        }
+      });
+    }
+  }
+};
+
+
+const DELETE = {
+  method: `DELETE`,
+  path: `/api/quiz/{id}`,
+  config: {
+    description: `Delete quiz`,
+    tags: [`api`, `delete`],
+    validate: {
+      params: {
+        id: Joi.objectId().description(`ID of quiz to delete`).example(`590e165d3b8f8d41d8e2b145`).required()
+      }
+    },
+    plugins: {
+      'hapi-swagger': {
+        responses: {
+          200: {description: `Success`},
+          404: {description: `Not Found`},
+          500: {description: `An internal server error occurred`}
+        }
+      }
+    },
+    handler: (req, res) => {
+      const {id} = req.params;
+      Quiz.findOneAndUpdate({_id: id, isActive: true}, {$set: {isActive: false}}, (err, q) => {
+        if (err) {
+          console.log(err);
+          return res(Boom.badImplementation(`An internal server error occurred`));
+        }
+        if (q) {
+          return res().code(200);
+        } else {
+          return res(Boom.notFound(`Quiz with this ID couldn't be found`));
+        }
+      });
+    }
+  }
+};
+
+
+module.exports = [GETALL, GETCOMPLETE, POST, PUT, DELETE];

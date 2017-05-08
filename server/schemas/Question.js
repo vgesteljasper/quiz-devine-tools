@@ -4,12 +4,12 @@ const schema = {
   quizID: {
     type: String,
     require: true,
-    validation: Joi.string().length(24)
+    validation: Joi.string().length(24).required()
   },
   question: {
     type: String,
     required: true,
-    validation: Joi.string()
+    validation: Joi.string().required()
   }
 };
 

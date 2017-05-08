@@ -57,8 +57,12 @@ server.register({
           contact: {
             name: `Jasper Van Gestel`
           }
+
         },
-        basePath: `/api/`
+        documentationPath: `/api/documentation`,
+        sortEndpoints: `method`,
+        jsonEditor: true,
+        basePath: `/api`
       }
 
     }

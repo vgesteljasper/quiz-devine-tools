@@ -4,7 +4,7 @@ const schema = {
   name: {
     type: String,
     required: true,
-    validation: Joi.string()
+    validation: Joi.string().required()
   }
 };
 
