@@ -2,14 +2,16 @@
 import React from 'react';
 import {string, func, bool} from 'prop-types';
 
-import Prefix from './Prefix';
+import ButtonDetail from './../Button/Detail';
 
-const Answer = ({vote, answer, prefix, enabled, voted}) => {
-  let classList = `button quiz-detail__answer`;
-  classList = voted ? `${classList} button_blue` : classList;
+const Answer = ({vote, answer, detail, enabled, voted}) => {
   return (
-    <button disabled={enabled ? `` : `disabled`} onClick={vote} className={classList}>
-      <Prefix value={prefix} />
+    <button
+      disabled={enabled ? `` : `disabled`}
+      onClick={vote}
+      className={`button quiz-detail__answer ${voted ? `button_blue` : ``}`}
+    >
+      <ButtonDetail value={detail} />
       <span>{answer}</span>
     </button>
   );
@@ -18,7 +20,7 @@ const Answer = ({vote, answer, prefix, enabled, voted}) => {
 Answer.propTypes = {
   vote: func.isRequired,
   answer: string.isRequired,
-  prefix: string.isRequired,
+  detail: string.isRequired,
   enabled: bool.isRequired,
   voted: bool.isRequired
 };

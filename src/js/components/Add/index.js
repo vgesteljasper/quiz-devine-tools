@@ -2,7 +2,7 @@
 import React from 'react';
 import {inject, observer} from 'mobx-react';
 import {func, object} from 'prop-types';
-import Button from './../Button';
+import Button from './../Button/';
 import AnswerInput from './AnswerInput';
 
 const Add = ({toggleIsEditing, unstagedAnswers}) => {
@@ -11,7 +11,7 @@ const Add = ({toggleIsEditing, unstagedAnswers}) => {
     <section className='new-quiz'>
       <div className='new-quiz__content'>
         <div className='new-quiz__top-bar'>
-          <Button classes={[`button_red`]} value='Close' method={toggleIsEditing} />
+          <Button value='Close' color='red' detail='&#215;' method={toggleIsEditing} />
         </div>
         <form>
           <label>

@@ -2,7 +2,7 @@
 import React from 'react';
 import {string, object} from 'prop-types';
 
-import AnswerList from './AnswerList';
+import AnswerList from './../Answer/List';
 
 const Question = ({question, answers}) => {
   return (

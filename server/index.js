@@ -54,9 +54,6 @@ server.register({
           title: `Devine Quiz Tool API`,
           description: `API for interacting with the devine quiz tool.`,
           version: pkg.version,
-          contact: {
-            name: `Jasper Van Gestel`
-          }
         },
         documentationPath: `/api/documentation`,
         sortEndpoints: `method`,

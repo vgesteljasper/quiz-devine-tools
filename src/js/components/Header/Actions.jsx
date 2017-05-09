@@ -1,11 +1,11 @@
 import React from 'react';
 import {inject, observer} from 'mobx-react';
 import {func} from 'prop-types';
-import Button from './../Button';
+import Button from './../Button/';
 
 const Actions = ({toggleIsEditing}) => (
   <div className='header__buttons'>
-    <Button classes={[`button_blue`]} value='New Quiz' method={toggleIsEditing} />
+    <Button value='New Quiz' color='red' detail='+' method={toggleIsEditing} />
   </div>
 );
 

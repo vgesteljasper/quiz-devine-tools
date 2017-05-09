@@ -2,7 +2,7 @@ import React from 'react';
 import {inject, observer} from 'mobx-react';
 import {object} from 'prop-types';
 
-import QuizLink from './QuizLink';
+import QuizLink from './Link';
 
 const QuizList = ({quizzes}) => {
 

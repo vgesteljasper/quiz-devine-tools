@@ -1,7 +1,7 @@
 import React from 'react';
 import {object} from 'prop-types';
 
-import Question from './../Question/';
+import Question from './';
 
 const QuestionList = ({questions}) => {
   return (

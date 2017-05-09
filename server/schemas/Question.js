@@ -5,12 +5,12 @@ const schema = {
   quizId: {
     type: String,
     require: true,
-    validation: Joi.objectId().required()
+    validation: Joi.objectId()
   },
   question: {
     type: String,
     required: true,
-    validation: Joi.string().required()
+    validation: Joi.string()
   }
 };
 

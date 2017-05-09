@@ -11,18 +11,19 @@ export default class Quiz {
     this.modified = modified;
     this.name = name;
 
-    fetch(`/api/question/${id}`)
+    fetch(`/api/questions?quizId=${id}&fields=question`)
       .then(response => {
         if (response.status === 200) return response.json();
         return [];
       })
+      .then(response => response.questions)
       .then(result => this._addQuestion(...result));
   }
 
   @action _addQuestion(...questions) {
     questions.forEach(q => {
       this.questions.push(
-        new Question(q.id, q.created, q.modified, q.question)
+        new Question(q._id, q.created, q.modified, q.question)
       );
     });
   }

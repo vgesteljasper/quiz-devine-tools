@@ -2,16 +2,13 @@ import React from 'react';
 import {object} from 'prop-types';
 import {observer} from 'mobx-react';
 
-import Answer from './../Answer/';
+import Answer from './';
 
 const AnswerList = ({answers}) => {
-  const alphabet = [
-    `a`, `b`, `c`, `d`, `e`, `f`, `g`, `h`, `i`, `j`, `k`, `l`, `m`,
-    `n`, `o`, `p`, `q`, `r`, `s`, `t`, `u`, `v`, `w`, `x`, `y`, `z`
-  ];
+  const letters = [`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`, `L`, `M`, `N`];
   return (
     <div className='quiz-detail__answer-list'>
-      {answers.map((a, i) => <Answer key={a.id} vote={a.vote} prefix={alphabet[i]} {...a} />)}
+      {answers.map((a, i) => <Answer key={a.id} vote={a.vote} detail={`${letters[i]}.`} {...a} />)}
     </div>
   );
 };

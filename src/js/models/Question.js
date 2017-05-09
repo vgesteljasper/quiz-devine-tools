@@ -11,11 +11,12 @@ export default class Question {
     this.modified = modified;
     this.question = question;
 
-    fetch(`/api/answer/${id}`)
+    fetch(`/api/answers?questionId=${id}&fields=answer&sort=created`)
       .then(response => {
         if (response.status === 200) return response.json();
         return [];
       })
+      .then(response => response.answers)
       .then(result => this._addAnswer(...result));
   }
 
@@ -26,7 +27,7 @@ export default class Question {
   @action _addAnswer(...answers) {
     answers.forEach(a => {
       this.answers.push(
-        new Answer(a.id, a.created, a.modified, a.answer, a.correct, this.disablaAnswers)
+        new Answer(a._id, a.created, a.modified, a.answer, a.correct, this.disablaAnswers)
       );
     });
   }

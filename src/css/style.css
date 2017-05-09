@@ -10,7 +10,8 @@ body {
 }
 
 .width-limit,
-.content {
+.content,
+.footer {
   width: 96rem;
   margin: 0 auto;
 }
@@ -25,7 +26,15 @@ body {
   font-size: 1.2rem;
   font-weight: bold;
   text-decoration: none;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__detail {
+    display: flex;
+    padding: .2rem 1.5rem .2rem 0;
+    opacity: .5;
+  }
 
   &:hover {
     cursor: pointer;
@@ -83,6 +92,14 @@ body {
 
   &__top-bar {
     margin: 0 0 4rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    & .button {
+      height: 3.8rem;
+
+    }
   }
 }
 
@@ -211,8 +228,9 @@ body {
   }
 }
 
-.prefix {
-  color: #999;
-  font-weight: 900;
-  padding-right: 1rem;
+.footer {
+  border-top: 1px solid #777;
+  margin-top: 10rem;
+  padding-top: 2rem;
+  text-transform: uppercase;
 }

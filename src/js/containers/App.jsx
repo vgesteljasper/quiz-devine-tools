@@ -1,27 +1,26 @@
-import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
-import {Switch} from 'react-router';
+import {BrowserRouter as Router} from 'react-router-dom';
 import React from 'react';
+import {Route, Redirect} from 'react-router-dom';
+import {Switch} from 'react-router';
 
 import Header from './../components/Header/';
+import Footer from './../components/Footer';
 import IndexPage from './IndexPage';
 import QuizPage from './QuizPage';
-import QuizObserverPage from './QuizObserverPage';
 
-const App = () => {
-
-  return (
-    <Router>
-      <div className='router-child'>
-        <Header />
-        <Switch>
-          <Route exact path='/' component={IndexPage} />
-          <Route exact path='/quiz/:id' render={({match}) => <QuizPage id={match.params.id} />} />
-          <Route exact path='/quiz/observer/:id' render={({match}) => <QuizObserverPage id={match.params.id} />} />
-          <Route render={() => <Redirect to='/' />} />
-        </Switch>
-      </div>
-    </Router>
-  );
-};
+const App = () => (
+  <Router>
+    <div className='router-child'>
+      <Header />
+      <Switch>
+        <Route exact path='/' component={IndexPage} />
+        <Route exact path='/quiz/:id' render={({match}) => <QuizPage id={match.params.id} type='responder' />} />
+        <Route exact path='/quiz/observer/:id' render={({match}) => <QuizPage id={match.params.id} type='observer' />} />
+        <Route render={() => <Redirect to='/' />} />
+      </Switch>
+      <Footer />
+    </div>
+  </Router>
+);
 
 export default App;

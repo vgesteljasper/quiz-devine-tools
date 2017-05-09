@@ -2,34 +2,28 @@
 import React from 'react';
 import {inject, observer, PropTypes} from 'mobx-react';
 import {string} from 'prop-types';
-import {Redirect} from 'react-router-dom';
+import {Link, Redirect} from 'react-router-dom';
 
-import Title from './Title';
-import Created from './Created';
-import QuestionList from './../Question/List';
-import Link from './../Link';
+import Title from './../Quiz/Title';
+import Created from './../Quiz/Created';
 
-const Quiz = ({store, id, type}) => {
+const Quiz = ({store, id}) => {
 
   const quiz = store.quizzes.find(q => q.id === id);
-
   if (quiz) {
     const {created, name, questions} = quiz;
+    console.log(questions);
     return (
       <main className='content'>
         <div className='content__top-bar'>
-          <Link to='/' value='Back to overview' detail='&#10094;' color='red' />
+          <Link to='/' className='button button_red'>Back to overview</Link>
         </div>
         <section className='quiz-detail'>
           <div className='quiz-detail__info'>
             <Title value={name} />
             <Created value={created} />
           </div>
-          {
-            type === `responder`
-              ? <QuestionList questions={questions} />
-              : <span>OBSERVER</span>
-          }
+          <span>OBSERVER</span>
         </section>
       </main>
     );
@@ -40,8 +34,7 @@ const Quiz = ({store, id, type}) => {
 
 Quiz.propTypes = {
   store: PropTypes.observableObject.isRequired,
-  id: string.isRequired,
-  type: string.isRequired
+  id: string.isRequired
 };
 
 export default inject(`store`)(observer(Quiz));

@@ -5,10 +5,10 @@ import {observer, inject, PropTypes} from 'mobx-react';
 import Add from './../components/Add/';
 import Quiz from './../components/Quiz/';
 
-const QuizPage = ({store, id}) => {
+const QuizPage = ({store, id, type}) => {
   return (
     <div className='quizpage-content'>
-      <Quiz id={id} />
+      <Quiz type={type} id={id} />
       {store.isCreating ? <Add /> : null}
     </div>
   );
@@ -16,7 +16,8 @@ const QuizPage = ({store, id}) => {
 
 QuizPage.propTypes = {
   store: PropTypes.observableObject.isRequired,
-  id: string.isRequired
+  id: string.isRequired,
+  type: string.isRequired
 };
 
 export default inject(`store`)(observer(QuizPage));

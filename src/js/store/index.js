@@ -4,18 +4,19 @@ import Quiz from './../models/Quiz';
 class Store {
 
   constructor() {
-    fetch(`/api/quiz`)
+    fetch(`/api/quizzes?fields=name,created&sort=-modified`)
       .then(response => {
         if (response.status === 200) return response.json();
         return [];
       })
+      .then(result => result.quizzes)
       .then(results => this._addQuiz(...results));
   }
 
   @action _addQuiz(...quizzes) {
     quizzes.forEach(q => {
       this.quizzes.push(
-        new Quiz(q.id, q.created, q.modified, q.name)
+        new Quiz(q._id, q.created, q.modified, q.name)
       );
     });
   }

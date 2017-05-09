@@ -2984,6 +2984,13 @@ handlebars@^4.0.5:
   optionalDependencies:
     uglify-js "^2.6"
 
+hapi-devine-api-config@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/hapi-devine-api-config/-/hapi-devine-api-config-1.0.1.tgz#a6cdbaded65bf58352e68f8e46252103f60da53e"
+  dependencies:
+    joi "^10.4.1"
+    joi-objectid "^2.0.0"
+
 hapi-devine-autoload@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hapi-devine-autoload/-/hapi-devine-autoload-1.0.1.tgz#3f53dffe6dd1e068233973363264ee8764b70fa7"
@@ -2998,6 +3005,12 @@ hapi-devine-mongodb@^1.0.0:
     glob "^7.1.1"
     joi "^10.4.1"
     mongoose "^4.9.6"
+
+hapi-devine-parse-query@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/hapi-devine-parse-query/-/hapi-devine-parse-query-1.0.6.tgz#58f68951d2d6893cb1e368289c9b74f6e70934cb"
+  dependencies:
+    lodash "^4.17.4"
 
 hapi-devine-routes@^1.0.0:
   version "1.0.5"

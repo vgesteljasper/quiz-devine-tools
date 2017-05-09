@@ -5,22 +5,22 @@ const schema = {
   questionId: {
     type: String,
     require: true,
-    validation: Joi.objectId().required()
+    validation: Joi.objectId()
   },
   answer: {
     type: String,
     required: true,
-    validation: Joi.string().required()
+    validation: Joi.string()
   },
   correct: {
     type: Boolean,
     required: true,
-    validation: Joi.boolean().required()
+    validation: Joi.boolean()
   },
   votes: {
     type: Number,
     required: true,
-    validation: Joi.number().integer().required()
+    validation: Joi.number().integer()
   }
 };
 
