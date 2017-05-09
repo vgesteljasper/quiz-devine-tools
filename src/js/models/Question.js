@@ -1,4 +1,4 @@
-const {observable, action} = require(`mobx`);
+import {observable, action} from 'mobx';
 import Answer from './Answer';
 
 export default class Question {
@@ -19,10 +19,14 @@ export default class Question {
       .then(result => this._addAnswer(...result));
   }
 
+  @action disablaAnswers = () => {
+    this.answers.forEach(a => a._disable());
+  }
+
   @action _addAnswer(...answers) {
     answers.forEach(a => {
       this.answers.push(
-        new Answer(a.id, a.created, a.modified, a.answer, a.correct)
+        new Answer(a.id, a.created, a.modified, a.answer, a.correct, this.disablaAnswers)
       );
     });
   }

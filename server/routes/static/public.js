@@ -23,11 +23,14 @@ module.exports = [
     method: `GET`,
     path: `/quiz/{param*}`,
     handler: {
-      directory: {
-        path: `.`,
-        redirectToSlash: false,
-        index: true
-      }
+      file: `./index.html`
+    }
+  },
+  {
+    method: `GET`,
+    path: `/quiz/observer/{param*}`,
+    handler: {
+      file: `./index.html`
     }
   }
 ];

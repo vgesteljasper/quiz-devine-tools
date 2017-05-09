@@ -7,7 +7,7 @@ import {toDate} from './../lib/dateFormat';
 const Quiz = ({id, created, name}) => {
 
   return (
-    <Link className='quiz' to={`/quiz/${id}`}>
+    <Link className='quiz' to={`/quiz/observer/${id}`}>
       <h2 className='quiz__name'>{name}</h2>
       <span className='quiz__date'>{toDate(created)}</span>
     </Link>

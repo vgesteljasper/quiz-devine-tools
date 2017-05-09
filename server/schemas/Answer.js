@@ -16,6 +16,11 @@ const schema = {
     type: Boolean,
     required: true,
     validation: Joi.boolean().required()
+  },
+  votes: {
+    type: Number,
+    required: true,
+    validation: Joi.number().integer().required()
   }
 };
 

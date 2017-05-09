@@ -19,7 +19,7 @@ body {
   appearance: none;
   border: 0;
   border-radius: .2rem;
-  background-color: #fafafa;
+  background-color: #f2f2f2;
   color: #111;
   padding: 1rem 2rem;
   font-size: 1.2rem;
@@ -173,10 +173,11 @@ body {
     width: auto;
     margin-right: 2rem;
     padding: 1rem 2rem;
-    background-color: #f2f2f2;
     border-radius: .2rem;
+    font-weight: 500;
+    font-size: 1.3rem;
 
-    &:hover {
+    &:enabled:hover {
       background-color: #e6e6e6;
       cursor: pointer;
     }
@@ -208,4 +209,10 @@ body {
     flex-direction: row;
     justify-content: flex-end;
   }
+}
+
+.prefix {
+  color: #999;
+  font-weight: 900;
+  padding-right: 1rem;
 }

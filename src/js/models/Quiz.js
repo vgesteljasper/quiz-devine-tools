@@ -1,4 +1,4 @@
-const {observable, action} = require(`mobx`);
+import {observable, action} from 'mobx';
 import Question from './Question';
 
 export default class Quiz {
