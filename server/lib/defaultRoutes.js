@@ -34,17 +34,26 @@ module.exports = Model => {
     },
 
     GET_ONE: (req, res) => {
+      /*
+
+        NOTE: added parseQuery to be able to filter results on this route
+        NOTE: won't show up in /api/documentation
+
+      */
       const {_id} = req.params;
-      const filter = {_id};
-      Model.findOne(
-        filter,
-        projection.join(` `)
-      )
-      .then(d => {
-        if (!d) return res(Boom.notFound(`${modelName} with _id ${_id} does not exist`));
-        return res(d);
-      })
-      .catch(err => res(Boom.badRequest(err.message)));
+      parseQuery(Model, req.query)
+        .then(({fields}) => {
+          Model.findOne(
+            {_id},
+            fields ? fields : projection.join(` `)
+          )
+          .then(d => {
+            if (!d) return res(Boom.notFound(`${modelName} with _id ${_id} does not exist`));
+            return res(d);
+          })
+          .catch(err => res(Boom.badRequest(err.message)));
+        })
+        .catch(err => res(Boom.badRequest(err.message)));
     },
 
     UPDATE: (req, res) => {

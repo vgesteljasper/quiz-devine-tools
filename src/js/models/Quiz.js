@@ -13,8 +13,8 @@ export default class Quiz {
 
     fetch(`/api/questions?quizId=${id}&fields=question`)
       .then(response => {
-        if (response.status === 200) return response.json();
-        return [];
+        if (response.status !== 200) return [];
+        return response.json();
       })
       .then(response => response.questions)
       .then(result => this._addQuestion(...result));

@@ -6,8 +6,8 @@ class Store {
   constructor() {
     fetch(`/api/quizzes?fields=name,created&sort=-modified`)
       .then(response => {
-        if (response.status === 200) return response.json();
-        return [];
+        if (response.status !== 200) return [];
+        return response.json();
       })
       .then(result => result.quizzes)
       .then(results => this._addQuiz(...results));

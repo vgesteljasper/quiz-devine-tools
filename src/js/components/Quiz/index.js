@@ -7,6 +7,7 @@ import {Redirect} from 'react-router-dom';
 import Title from './Title';
 import Created from './Created';
 import QuestionList from './../Question/List';
+import QuestionListObserver from './../Question/Observer/List';
 import Link from './../Link';
 
 const Quiz = ({store, id, type}) => {
@@ -28,7 +29,7 @@ const Quiz = ({store, id, type}) => {
           {
             type === `responder`
               ? <QuestionList questions={questions} />
-              : <span>OBSERVER</span>
+              : <QuestionListObserver questions={questions} />
           }
         </section>
       </main>

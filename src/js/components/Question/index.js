@@ -3,11 +3,12 @@ import React from 'react';
 import {string, object} from 'prop-types';
 
 import AnswerList from './../Answer/List';
+import Title from './Title';
 
 const Question = ({question, answers}) => {
   return (
     <div className='quiz-detail__question-list'>
-      <h3 className='quiz-detail__question'>{question}</h3>
+      <Title value={question} />
       <AnswerList answers={answers} />
     </div>
   );
