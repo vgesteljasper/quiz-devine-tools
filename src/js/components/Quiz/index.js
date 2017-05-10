@@ -1,48 +1,32 @@
 /* eslint-disable react/jsx-filename-extension */
 import React from 'react';
-import {inject, observer, PropTypes} from 'mobx-react';
+import {observer, PropTypes} from 'mobx-react';
 import {string} from 'prop-types';
-import {Redirect} from 'react-router-dom';
 
-import Title from './Title';
-import Created from './Created';
-import QuestionList from './../Question/List';
-import QuestionListObserver from './../Question/Observer/List';
-import Link from './../Link';
+import {toDate} from './../../lib/dateFormat';
+import Question from './../Question';
 
-const Quiz = ({store, id, type}) => {
+const Quiz = ({quiz, type}) => {
 
-  const quiz = store.quizzes.find(q => q.id === id);
+  const {created, name, questions, loadQuestions} = quiz;
+  loadQuestions();
 
-  if (quiz) {
-    const {created, name, questions} = quiz;
-    return (
-      <main className='content'>
-        <div className='content__top-bar'>
-          <Link to='/' value='Back to overview' detail='&#10094;' color='red' />
-        </div>
-        <section className='quiz-detail'>
-          <div className='quiz-detail__info'>
-            <Title value={name} />
-            <Created value={created} />
-          </div>
-          {
-            type === `responder`
-              ? <QuestionList questions={questions} />
-              : <QuestionListObserver questions={questions} />
-          }
-        </section>
-      </main>
-    );
-  } else {
-    return <Redirect to='/' />;
-  }
+  return (
+    <section className='quiz'>
+      <div className='quiz__info'>
+        <h2 className='quiz__title'>{name}</h2>
+        <h3 className='quiz__date'>{toDate(created)}</h3>
+      </div>
+      <div className='question-list'>
+        {questions.map(q => <Question key={q.id} quest={q} type={type} />)}
+      </div>
+    </section>
+  );
 };
 
 Quiz.propTypes = {
-  store: PropTypes.observableObject.isRequired,
-  id: string.isRequired,
+  quiz: PropTypes.observableObject.isRequired,
   type: string.isRequired
 };
 
-export default inject(`store`)(observer(Quiz));
+export default observer(Quiz);

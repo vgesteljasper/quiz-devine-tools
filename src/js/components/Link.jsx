@@ -5,7 +5,11 @@ import ButtonDetail from './Button/Detail';
 
 const LinkButton = ({to, value, color, detail}) => (
   <Link className={`button button_${color}`} to={to}>
-    {detail !== `` ? <ButtonDetail value={detail} /> : null}
+    {
+      detail !== ``
+        ? <ButtonDetail value={detail} />
+        : null
+    }
     <span>{value}</span>
   </Link>
 );

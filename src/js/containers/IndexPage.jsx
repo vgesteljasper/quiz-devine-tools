@@ -1,18 +1,27 @@
 import React from 'react';
 import {observer, inject, PropTypes} from 'mobx-react';
+import {bool} from 'prop-types';
 
-import QuizList from './../components/Quiz/List';
-import Add from './../components/Add/';
+import QuizLink from './../components/Quiz/Link';
 
-const IndexPage = ({store}) => (
-  <div className='indexpage-content'>
-    <QuizList type='responder' />
-    {store.isCreating ? <Add /> : null}
-  </div>
-);
+const IndexPage = ({quizzes, adminActive}) => {
 
-IndexPage.propTypes = {
-  store: PropTypes.observableObject.isRequired
+  const classes = [`content`, `quiz-list`];
+  adminActive ? classes.push(`monitoring`) : classes;
+
+  return (
+    <main className={classes.join(` `)}>
+      {quizzes.map(q => <QuizLink key={q.id} {...q} adminActive={adminActive} />)}
+    </main>
+  );
 };
 
-export default inject(`store`)(observer(IndexPage));
+IndexPage.propTypes = {
+  quizzes: PropTypes.observableArray.isRequired,
+  adminActive: bool.isRequired,
+};
+
+export default inject(({store}) => {
+  const {quizzes, adminActive} = store;
+  return {quizzes, adminActive};
+})(observer(IndexPage));

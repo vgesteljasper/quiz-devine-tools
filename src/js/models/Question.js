@@ -1,43 +1,49 @@
 import {observable, action} from 'mobx';
 import Answer from './Answer';
+import {voteAPI, answerAPI} from './../lib/api/apiHelper';
 
 export default class Question {
 
   @observable answers = []
   @observable question = ``
+  loaded = false
+  setInterval = false
 
-  constructor(id, created, modified, question) {
+  constructor(id, question) {
     this.id = id;
-    this.created = created;
-    this.modified = modified;
     this.question = question;
-
-    fetch(`/api/answers?questionId=${id}&fields=answer,votes&sort=created`)
-      .then(response => {
-        if (response.status !== 200) return [];
-        return response.json();
-      })
-      .then(response => response.answers)
-      .then(result => this._addAnswer(...result));
   }
 
-  @action monitorVotes = () => {
-    setInterval(this._getVotes, 5000);
+  loadAnswers = () => {
+    if (!this.loaded) {
+      answerAPI.get(this.id).then(answers => this._addAnswer(...answers));
+      this.loaded = true;
+    }
   }
 
-  @action _getVotes = () => {
-    fetch(`/api/answers?questionId=${this.id}&fields=votes`)
-      .then(response => {
-        if (response.status !== 200) throw new Error();
-        return response.json();
-      })
-      .then(response => response.answers)
-      .then(answers => this._updateVotes(...answers));
+  @action startMonitoringVotes = () => {
+    if (!this.setInterval) {
+      // this.refreshInterval = setInterval(this._getVotes, 2000);
+      this.setInterval = true;
+    }
   }
 
-  @action _updateVotes = (...answers) => {
-    answers.forEach((a, i) => {
-      this.answers[i]._pushVotes(a.votes);
+  @action stopMonitoringVotes = () => {
+    clearInterval(this.refreshInterval);
+    this.setInterval = false;
+  }
+
+  _getVotes = () => {
+
+    // fetch votes for all answers
+    voteAPI.get(this.id).then(votes => {
+      this._updateVotes(...votes);
+    });
+  }
+
+  _updateVotes = (...answers) => {
+    answers.forEach((answer, iteration) => {
+      this.answers[iteration]._pushVotes(answer.votes);
     });
   }
 
@@ -45,10 +51,10 @@ export default class Question {
     this.answers.forEach(a => a._disable());
   }
 
-  @action _addAnswer(...answers) {
+  _addAnswer(...answers) {
     answers.forEach(a => {
       this.answers.push(
-        new Answer(a._id, a.created, a.modified, a.answer, a.correct, a.votes, this.disablaAnswers)
+        new Answer(a._id, a.created, a.answer, a.correct, a.votes, this.disablaAnswers)
       );
     });
   }

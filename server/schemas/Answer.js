@@ -19,8 +19,16 @@ const schema = {
   },
   votes: {
     type: Number,
-    required: true,
-    validation: Joi.number().integer()
+    required: false,
+    default: 0,
+    validation: Joi.number().integer().min(0)
+  },
+  votesInc: {
+    type: String,
+    required: false,
+    default: `0`,
+    validation: Joi.string().regex(/^[\+\-]?[0-9]+$/, `string example: 1 20 +1 -1 +10 -50`),
+    project: false
   }
 };
 

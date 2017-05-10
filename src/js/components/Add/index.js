@@ -1,29 +1,32 @@
 /* eslint-disable react/jsx-filename-extension */
 import React from 'react';
 import {inject, observer} from 'mobx-react';
-import {func, object} from 'prop-types';
+import {func} from 'prop-types';
 import Button from './../Button/';
-import AnswerInput from './AnswerInput';
 
-const Add = ({toggleIsEditing, unstagedAnswers}) => {
+const Add = ({toggleIsEditing, addNewQuiz}) => {
+
+  let $quizName;
+
+  const preventReload = evt => evt.preventDefault();
+
+  const _addNewQuiz = () => {
+    const name = $quizName.value;
+    if (name.length > 0) {
+      addNewQuiz($quizName.value);
+    }
+  };
 
   return (
     <section className='new-quiz'>
       <div className='new-quiz__content'>
-        <div className='new-quiz__top-bar'>
-          <Button value='Close' color='red' detail='&#215;' method={toggleIsEditing} />
+        <div className='action-bar action-bar_right'>
+          <Button value='Close' color='red' method={toggleIsEditing} />
         </div>
-        <form>
-          <label>
-            <span className='label'>Quiz name:</span><br />
-            <input type='text' /><br />
-          </label>
-          <label className='label'>Questions:</label><br />
-          {
-            unstagedAnswers.map(a => {
-              return <AnswerInput key={a.id} />;
-            })
-          }
+        <form onSubmit={preventReload}>
+          <h2>New Quiz</h2>
+          <input type='text' ref={el => $quizName = el} />
+          <Button value='Add' color='blue' method={_addNewQuiz} />
         </form>
       </div>
     </section>
@@ -32,12 +35,10 @@ const Add = ({toggleIsEditing, unstagedAnswers}) => {
 
 Add.propTypes = {
   toggleIsEditing: func.isRequired,
-  unstagedAnswers: object.isRequired
+  addNewQuiz: func.isRequired
 };
 
 export default inject(({store}) => {
-  return {
-    toggleIsEditing: store.toggleIsEditing,
-    unstagedAnswers: store.unstagedAnswers
-  };
+  const {toggleIsEditing, addNewQuiz} = store;
+  return {toggleIsEditing, addNewQuiz};
 })(observer(Add));

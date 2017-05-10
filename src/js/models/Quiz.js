@@ -1,29 +1,29 @@
-import {observable, action} from 'mobx';
+import {action, observable} from 'mobx';
 import Question from './Question';
+import {questionAPI} from './../lib/api/apiHelper';
 
 export default class Quiz {
 
   @observable questions = []
+  loaded = false
 
-  constructor(id, created, modified, name) {
+  constructor(id, created, name) {
     this.id = id;
     this.created = created;
-    this.modified = modified;
     this.name = name;
-
-    fetch(`/api/questions?quizId=${id}&fields=question`)
-      .then(response => {
-        if (response.status !== 200) return [];
-        return response.json();
-      })
-      .then(response => response.questions)
-      .then(result => this._addQuestion(...result));
   }
 
-  @action _addQuestion(...questions) {
+  @action loadQuestions = () => {
+    if (!this.loaded) {
+      questionAPI.get(this.id).then(questions => this._addQuestion(...questions));
+      this.loaded = true;
+    }
+  }
+
+  _addQuestion(...questions) {
     questions.forEach(q => {
       this.questions.push(
-        new Question(q._id, q.created, q.modified, q.question)
+        new Question(q._id, q.question)
       );
     });
   }

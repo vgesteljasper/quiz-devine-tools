@@ -1,4 +1,5 @@
 import {observable, action} from 'mobx';
+import {voteAPI} from './../lib/api/apiHelper';
 
 export default class Answer {
 
@@ -6,28 +7,27 @@ export default class Answer {
   @observable voted = false
   @observable votes = 0
 
-  constructor(id, created, modified, answer, correct, votes, disableAnswers) {
+  constructor(id, created, answer, correct, votes, _disableAnswers) {
     this.id = id;
     this.created = created;
-    this.modified = modified;
     this.answer = answer;
     this.correct = correct;
     this.votes = votes;
-    this.disableAnswers = disableAnswers;
+    this._disableAnswers = _disableAnswers;
   }
 
   @action vote = () => {
     this.voted = true;
-    this.disableAnswers();
+    this._disableAnswers();
     this._voteUp();
   }
 
   @action _voteUp = () => {
+    voteAPI.voteUp(this.id);
   }
 
   @action _pushVotes = votes => {
     this.votes = votes;
-    console.log(`updated votes ${votes} ${this.votes}`);
   }
 
   @action _disable = () => {

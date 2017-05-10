@@ -1,15 +1,17 @@
 import React from 'react';
-import {string} from 'prop-types';
+import {string, bool} from 'prop-types';
 import {Link} from 'react-router-dom';
 
 import {toDate} from './../../lib/dateFormat';
 
-const QuizLink = ({id, created, name}) => {
+const QuizLink = ({id, created, name, adminActive}) => {
+
+  const target = adminActive ? `/quiz/observer/${id}` : `/quiz/${id}`;
 
   return (
-    <Link className='quiz' to={`/quiz/${id}`}>
-      <h2 className='quiz__name'>{name}</h2>
-      <span className='quiz__date'>{toDate(created)}</span>
+    <Link className='quiz-link' to={target}>
+      <h2 className='quiz-link__name'>{name}</h2>
+      <h3 className='quiz-link__date'>{toDate(created)}</h3>
     </Link>
   );
 };
@@ -17,7 +19,8 @@ const QuizLink = ({id, created, name}) => {
 QuizLink.propTypes = {
   id: string.isRequired,
   created: string.isRequired,
-  name: string.isRequired
+  name: string.isRequired,
+  adminActive: bool.isRequired
 };
 
 export default QuizLink;

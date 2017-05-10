@@ -6,6 +6,29 @@ module.exports = Model => {
   const {omit, pick} = require(`lodash`);
   const getFullUrl = require(`./getFullUrl`);
 
+  const transformPayloadForVotes = payload => {
+
+    const votesInc = payload.votesInc;
+    let votesPayload = {};
+
+    // check if votesInc starts with a + or -
+    // $inc takes negative values as well so we can pass
+    // all +... and -... values
+    if (/^[\+\-]{1}[0-9]+$/.test(votesInc)) {
+      votesPayload = {$inc: {votes: Number(votesInc)}};
+    }
+    // if votesInc doesn't match it's a regular number
+    // and we'll replace the current votes value with this one
+    else {
+      votesPayload = {votes: votesInc};
+    }
+
+    payload = omit(payload, `votesInc`);
+    payload = Object.assign({}, votesPayload, payload);
+
+    return payload;
+  };
+
   const methods = {
 
     POST: (req, res) => {
@@ -35,10 +58,8 @@ module.exports = Model => {
 
     GET_ONE: (req, res) => {
       /*
-
         NOTE: added parseQuery to be able to filter results on this route
         NOTE: won't show up in /api/documentation
-
       */
       const {_id} = req.params;
       parseQuery(Model, req.query)
@@ -57,21 +78,35 @@ module.exports = Model => {
     },
 
     UPDATE: (req, res) => {
+      /*
+        NOTE: added parseQuery to be able to filter results on this route
+        NOTE: won't show up in /api/documentation
+      */
       const {_id} = req.params;
-      const payload = pick(req.payload, fields);
-      Model.update({_id}, payload, {upsert: true})
-        .then(d => {
-          if (d.ok) {
-            Model.findOne(
-              {_id},
-              projection.join(` `)
-            )
+      let payload = pick(req.payload, fields);
+      /*
+        NOTE: added support for doing calculations to votes value
+      */
+      if (`votesInc` in payload) {
+        payload = transformPayloadForVotes(payload);
+      }
+      parseQuery(Model, req.query)
+        .then(({fields}) => {
+          Model.update({_id}, payload)
             .then(d => {
-              if (!d) return res(Boom.notFound(`${modelName} does not exist`));
-              return res(d);
+              if (d.ok) {
+                Model.findOne(
+                  {_id},
+                  fields ? fields : projection.join(` `)
+                )
+                .then(d => {
+                  if (!d) return res(Boom.notFound(`${modelName} does not exist`));
+                  return res(d);
+                })
+                .catch(err => res(Boom.badRequest(err.message)));
+              } else return (Boom.badRequest(`error while updating ${modelName} with _id ${_id}`));
             })
             .catch(err => res(Boom.badRequest(err.message)));
-          } else return (Boom.badRequest(`error while updating ${modelName} with _id ${_id}`));
         })
         .catch(err => res(Boom.badRequest(err.message)));
     },
@@ -84,7 +119,7 @@ module.exports = Model => {
           .then(() => res().code(204))
           .catch(err => res(Boom.badRequest(err.message)));
       } else {
-        Model.update({_id}, {isActive: false}, {upsert: true})
+        Model.update({_id}, {isActive: false})
           .then(d => {
             if (d.ok) return res().code(204);
             else return res(Boom.badRequest(`error while deleting ${modelName} with _id ${_id}`));
