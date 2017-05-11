@@ -25,13 +25,13 @@ class Store {
   @observable stagedAnswers = [];
 
   @observable isCreating = false;
-  @observable adminActive = false;
+  @observable adminActive = true;
 
   @action toggleIsEditing = () => {
     this.isCreating = !this.isCreating;
   }
 
-  @action toggleMonitoring = () => {
+  @action toggleAdminActive = () => {
     if (!this.adminActive) {
       if (confirm(`We'll assume you're an admin for now 😁
 
@@ -40,6 +40,13 @@ ENABLE ADMIN?`)) {
       }
     } else {
       this.adminActive = false;
+
+      // NOTE: stop all quizzes from monitoring votes
+      this.quizzes.forEach(q => {
+        q.questions.forEach(q => {
+          if (q.setInterval) q.stopMonitoringVotes();
+        });
+      });
     }
   }
 

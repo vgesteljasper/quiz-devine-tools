@@ -18,8 +18,8 @@ const App = ({isCreating}) => (
       {isCreating ? <Add /> : null}
       <Switch>
         <Route exact path='/' component={IndexPage} />
-        <Route exact path='/quiz/:id' render={({match}) => <QuizPage id={match.params.id} match={match} type='responder' />} />
-        <Route exact path='/quiz/observer/:id' render={({match}) => <QuizPage id={match.params.id} match={match} type='observer' />} />
+        <Route exact path='/quiz/:id' render={({match}) => <QuizPage match={match} type='responder' />} />
+        <Route exact path='/quiz/observer/:id' render={({match}) => <QuizPage match={match} type='observer' />} />
         <Route render={() => <Redirect to='/' />} />
       </Switch>
       <Footer />

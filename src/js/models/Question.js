@@ -6,6 +6,7 @@ export default class Question {
 
   @observable answers = []
   @observable question = ``
+  @observable totalVotes = 0;
   loaded = false
   setInterval = false
 
@@ -23,7 +24,7 @@ export default class Question {
 
   @action startMonitoringVotes = () => {
     if (!this.setInterval) {
-      // this.refreshInterval = setInterval(this._getVotes, 2000);
+      this.refreshInterval = setInterval(this._getVotes, 2000);
       this.setInterval = true;
     }
   }
@@ -42,9 +43,12 @@ export default class Question {
   }
 
   _updateVotes = (...answers) => {
+    let totalVotes = 0;
     answers.forEach((answer, iteration) => {
+      totalVotes += Number(answer.votes);
       this.answers[iteration]._pushVotes(answer.votes);
     });
+    this.totalVotes = totalVotes;
   }
 
   @action disablaAnswers = () => {

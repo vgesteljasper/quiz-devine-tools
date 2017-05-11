@@ -18,7 +18,7 @@ const Quiz = ({quiz, type}) => {
         <h3 className='quiz__date'>{toDate(created)}</h3>
       </div>
       <div className='question-list'>
-        {questions.map(q => <Question key={q.id} quest={q} type={type} />)}
+        {questions.map(q => <Question key={q.id} question={q} type={type} />)}
       </div>
     </section>
   );

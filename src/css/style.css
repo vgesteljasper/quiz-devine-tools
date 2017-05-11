@@ -217,6 +217,11 @@ body {
   flex-direction: row;
   justify-content: flex-start;
   flex-wrap: wrap;
+
+  &.observer {
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
 }
 
 .answer {
@@ -230,6 +235,39 @@ body {
   &:enabled:hover {
     background-color: #e6e6e6;
     cursor: pointer;
+  }
+}
+
+.stat {
+  height: 3.4rem;
+  border-radius: .2rem;
+  background-color: #f2f2f2;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  position: relative;
+
+  &__answer {
+    font-size: 1.3rem;
+  }
+
+  &__answer,
+  &__votes {
+    z-index: 1;
+  }
+
+  &__bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background-color: lightgreen;
+    border-radius: .2rem;
+    transition: width .2s;
   }
 }
 

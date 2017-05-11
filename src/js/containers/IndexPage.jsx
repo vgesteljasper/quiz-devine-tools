@@ -9,6 +9,14 @@ const IndexPage = ({quizzes, adminActive}) => {
   const classes = [`content`, `quiz-list`];
   adminActive ? classes.push(`monitoring`) : classes;
 
+  // stop all Questions from monitoring votes
+  // eg: if coming back from other route where votes were updating
+  quizzes.forEach(quiz => {
+    quiz.questions.forEach(question => {
+      if (question.setInterval) question.stopMonitoringVotes();
+    });
+  });
+
   return (
     <main className={classes.join(` `)}>
       {quizzes.map(q => <QuizLink key={q.id} {...q} adminActive={adminActive} />)}

@@ -1,63 +1,53 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {observer, inject, PropTypes} from 'mobx-react';
-import {string, object} from 'prop-types';
+import {string, object, bool} from 'prop-types';
 import {Redirect} from 'react-router-dom';
 
 import Quiz from './../components/Quiz/';
 import Link from './../components/Link';
 
-@inject(`store`) @observer
-class QuizPage extends Component {
 
-  state = {}
-  quiz = this.props.store.quizzes.find(q => q.id === this.props.id);
+const QuizPage = ({type, match, adminActive, quizzes}) => {
 
-  componentWillUnmount() {
-    // NOTE: We need a handler here to stop the refreshInterval when leaving this route.
-    // NOTE: = reason for using state component
-    if (this.quiz) {
-      this.quiz.questions.forEach(q => {
-        q.stopMonitoringVotes();
-      });
-    }
+  const {path} = match;
+  const {id} = match.params;
+  const quiz = quizzes.find(q => q.id === id);
+
+  if (quiz) {
+    return (
+      <main className='content'>
+        {
+          /* if set adminActive to true but still on /quiz/:id, redirect ro /quiz/observer/:id */
+          adminActive && path === `/quiz/:id`
+            ? <Redirect to={`/quiz/observer/${id}`} />
+            : null
+        }
+        {
+          /* if set adminActive to false but still on /quiz/observer/:id, redirect ro /quiz/:id */
+          !adminActive && path === `/quiz/observer/:id`
+            ? <Redirect to={`/quiz/${id}`} />
+            : null
+        }
+        <div className='action-bar'>
+          <Link to='/' value='Back to overview' detail='&#10094;' color='red' />
+        </div>
+        <Quiz type={type} quiz={quiz} />
+      </main>
+    );
+  } else {
+    return <Redirect to='/' />;
   }
 
-  render() {
-    if (this.quiz) {
-      return (
-        <main className='content'>
-          {
-            /* if set adminActive to true but still on /quiz/:id, redirect ro /quiz/observer/:id */
-            this.props.store.adminActive && this.props.match.path === `/quiz/:id`
-              ? <Redirect to={`/quiz/observer/${this.props.id}`} />
-              : null
-          }
-          {
-            /* if set adminActive to false but still on /quiz/observer/:id, redirect ro /quiz/:id */
-            !this.props.store.adminActive && this.props.match.path === `/quiz/observer/:id`
-              ? <Redirect to={`/quiz/${this.props.id}`} />
-              : null
-          }
-          <div className='action-bar'>
-            <Link to='/' value='Back to overview' detail='&#10094;' color='red' />
-          </div>
-          <Quiz type={this.props.type} quiz={this.quiz} />
-        </main>
-      );
-    } else {
-      return <Redirect to='/' />;
-    }
-  }
-}
+};
 
 QuizPage.propTypes = {
-  id: string.isRequired,
-  type: string.isRequired,
-  match: object.isRequired
+  adminActive: bool.isRequired,
+  quizzes: PropTypes.observableArray.isRequired,
+  match: object.isRequired,
+  type: string.isRequired
 };
 
-QuizPage.wrappedComponent.propTypes = {
-  store: PropTypes.observableObject.isRequired
-};
-
-export default QuizPage;
+export default inject(({store}) => {
+  const {adminActive, quizzes} = store;
+  return {adminActive, quizzes};
+})(observer(QuizPage));

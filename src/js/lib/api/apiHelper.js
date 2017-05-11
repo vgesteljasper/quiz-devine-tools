@@ -45,7 +45,7 @@ export const questionAPI = {
 
 export const answerAPI = {
   get: _id => {
-    return fetch(`/api/answers?questionId=${_id}&fields=answer,votes`)
+    return fetch(`/api/answers?questionId=${_id}&fields=answer,votes,correct`)
       .then(response => {
         if (response.status !== 200) throw new Error();
         return response;
