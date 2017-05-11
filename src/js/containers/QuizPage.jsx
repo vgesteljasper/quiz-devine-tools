@@ -1,13 +1,13 @@
 import React from 'react';
 import {observer, inject, PropTypes} from 'mobx-react';
-import {string, object, bool} from 'prop-types';
+import {object, bool} from 'prop-types';
 import {Redirect} from 'react-router-dom';
 
 import Quiz from './../components/Quiz/';
 import Link from './../components/Link';
 
 
-const QuizPage = ({type, match, adminActive, quizzes}) => {
+const QuizPage = ({match, adminActive, quizzes}) => {
 
   const {path} = match;
   const {id} = match.params;
@@ -31,7 +31,7 @@ const QuizPage = ({type, match, adminActive, quizzes}) => {
         <div className='action-bar'>
           <Link to='/' value='Back to overview' detail='&#10094;' color='red' />
         </div>
-        <Quiz type={type} quiz={quiz} />
+      <Quiz quiz={quiz} />
       </main>
     );
   } else {
@@ -43,8 +43,7 @@ const QuizPage = ({type, match, adminActive, quizzes}) => {
 QuizPage.propTypes = {
   adminActive: bool.isRequired,
   quizzes: PropTypes.observableArray.isRequired,
-  match: object.isRequired,
-  type: string.isRequired
+  match: object.isRequired
 };
 
 export default inject(({store}) => {

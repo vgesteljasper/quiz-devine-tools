@@ -1,6 +1,6 @@
 export const quizAPI =  {
   get: () => {
-    return fetch(`/api/quizzes`)
+    return fetch(`/api/quizzes?isActive=true`)
       .then(response => {
         if (response.status !== 200) throw new Error();
         return response;
@@ -15,6 +15,14 @@ export const quizAPI =  {
     return fetch(`/api/quizzes?fields=created,name`, {method, body})
       .then(response => {
         if (response.status !== 201) throw new Error();
+        return response.json();
+      });
+  },
+  remove: id => {
+    const method = `DELETE`;
+    return fetch(`/api/quizzes/${id}`, {method})
+      .then(response => {
+        if (response.status !== 204) throw new Error();
         return response.json();
       });
   }
@@ -69,7 +77,7 @@ export const answerAPI = {
 
 export const voteAPI = {
   get: _id => {
-    return fetch(`/api/answers?questionId=${_id}&fields=votes`)
+    return fetch(`/api/answers?isActive=true,questionId=${_id}&fields=votes`)
       .then(response => {
         if (response.status !== 200) throw new Error();
         return response.json();

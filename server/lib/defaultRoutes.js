@@ -1,10 +1,33 @@
 module.exports = Model => {
 
-  const {fields, validation, projection, collectionName, modelName, route} = require(`hapi-devine-api-config`)(Model);
+  //******************************************************************//
+  //******************************************************************//
+
+  // in these comments => Model = User.js
+
+  const {
+
+    fields, // input fields (all possible input fields for POST / PATCH / PUT)
+    validation, // JOI validation object (validate params, query, payload via schema)
+    projection, // mongoose projection (default: ['__v']), add in schema via project: false
+    collectionName, // "users"
+    modelName, // "user"
+    route, // "api/users"
+
+  } = require(`hapi-devine-api-config`)(Model);
+
+  //******************************************************************//
+
   const parseQuery = require(`hapi-devine-parse-query`);
+
   const Boom = require(`boom`);
   const {omit, pick} = require(`lodash`);
-  const getFullUrl = require(`./getFullUrl`);
+
+  const getFullUrl = suffix => {
+    const {URL = `http://localhost`, PORT} = process.env;
+    const isDevelopment = (URL === `http://localhost`);
+    return `${URL}${isDevelopment ? `:${PORT}` : ``}${suffix}`;
+  };
 
   const transformPayloadForVotes = payload => {
 
@@ -29,163 +52,289 @@ module.exports = Model => {
     return payload;
   };
 
+  // NOTE: never send results that are inactive
+  const removeInactive = filter => {
+    if (!(`isActive` in filter)) {
+      filter = Object.assign({}, {isActive: true}, filter);
+    }
+  };
+
   const methods = {
 
-    POST: (req, res) => {
+    create: (req, res) => {
+
       const payload = pick(req.payload, fields);
+
+      // create new instance of model (with payload as data)
       const model = new Model(payload);
+
+      // insert model
       model.save()
         .then(d => {
-          if (!d) return res(Boom.badRequest(`cannot save ${modelName}`));
-          d = omit(d.toJSON(), projection.map(p => p.startsWith(`-`) ? p.slice(1) : p));
-          return res(d).header(`Location`, getFullUrl(`${route}/${d._id}`)).code(201);
+
+          if (!d) return res( // insert failed
+            Boom.badRequest(`cannot save ${modelName}`)
+          );
+
+          // no projection on save, manual via omit
+          d = omit(
+            d.toJSON(),
+            projection.map(p => p.startsWith(`-`) ? p.slice(1) : p) // projection without ('-')
+          );
+
+          return (
+            res(d) // result
+              .header(`Location`, getFullUrl(`${route}/${d._id}`)) // LOCATION HEADER
+              .code(201) // code: 201 => CREATED
+          );
+
         })
-        .catch(err => res(Boom.badRequest(err.message)));
+        .catch(err => res(
+          Boom.badRequest(err.message) // mongoose, mongodb errors
+        ));
+
     },
 
-    GET: (req, res) => {
+    read: (req, res) => {
+
+      // parse querystrings (filtering, fields, sorting etc...)
       parseQuery(Model, req.query)
         .then(({sort, skip, limit, fields: f, meta, filter}) => {
-          Model.find(
-            filter,
-            f ? f : projection.join(` `),
-            {sort, skip, limit}
-          )
-          .then(d => res({[collectionName]: d, meta}));
-        })
-        .catch(err => res(Boom.badRequest(err.message)));
-    },
 
-    GET_ONE: (req, res) => {
-      /*
-        NOTE: added parseQuery to be able to filter results on this route
-        NOTE: won't show up in /api/documentation
-      */
-      const {_id} = req.params;
-      parseQuery(Model, req.query)
-        .then(({fields}) => {
-          Model.findOne(
-            {_id},
-            fields ? fields : projection.join(` `)
+          filter = removeInactive(filter);
+
+          console.log(filter);
+
+          Model.find(
+            filter, // filter = empty as default
+            f ? f : projection.join(` `), // projection (manual add fields)
+            {sort, skip, limit} // sorting + pagination
           )
           .then(d => {
-            if (!d) return res(Boom.notFound(`${modelName} with _id ${_id} does not exist`));
-            return res(d);
-          })
-          .catch(err => res(Boom.badRequest(err.message)));
+
+            return res({
+              [collectionName]: d, // in example. users: [{...}, {...}, etc]
+              meta // meta data on GET (total, page (per_page, total, current))
+            }); // CODE: 200 => OK
+
+          });
+
         })
-        .catch(err => res(Boom.badRequest(err.message)));
+        .catch(err => res(
+          Boom.badRequest(err.message) // mongoose, mongodb errors (400)
+        ));
+
     },
 
-    UPDATE: (req, res) => {
-      /*
-        NOTE: added parseQuery to be able to filter results on this route
-        NOTE: won't show up in /api/documentation
-      */
-      const {_id} = req.params;
-      let payload = pick(req.payload, fields);
-      /*
-        NOTE: added support for doing calculations to votes value
-      */
+    readOne: (req, res) => {
+
+      const {_id} = req.params; // _id from route
+
+      let filter = {_id}; // select by _id
+      filter = removeInactive(filter);
+
+      Model.findOne(
+        filter,
+        projection.join(` `) // projection
+      )
+      .then(d => {
+
+        // no data -> CODE: 404 => NOT FOUND
+        if (!d) return res(
+          Boom.notFound(`${modelName} with _id ${_id} does not exist`)
+        );
+
+        return res(
+          d // data
+        ); // CODE: 200 =>  OK
+
+      })
+      .catch(err => res(
+        Boom.badRequest(err.message)) // mongoose, mongodb errors (400)
+      );
+
+    },
+
+    update: (req, res) => {
+
+      const {_id} = req.params; // _id from route
+
+      let payload = pick(req.payload, fields); // clean payload data
+
       if (`votesInc` in payload) {
         payload = transformPayloadForVotes(payload);
       }
-      parseQuery(Model, req.query)
-        .then(({fields}) => {
-          Model.update({_id}, payload)
+
+      Model.update({_id}, payload) // automatically changes updated field
+        .then(d => {
+
+          if (d.ok) { // update success?
+
+            // const filter = {_id, isActive: true}; // USER
+            let filter = {_id};
+            filter = removeInactive(filter);
+
+            Model.findOne(
+              filter,
+              projection.join(` `)
+            )
             .then(d => {
-              if (d.ok) {
-                Model.findOne(
-                  {_id},
-                  fields ? fields : projection.join(` `)
-                )
-                .then(d => {
-                  if (!d) return res(Boom.notFound(`${modelName} does not exist`));
-                  return res(d);
-                })
-                .catch(err => res(Boom.badRequest(err.message)));
-              } else return (Boom.badRequest(`error while updating ${modelName} with _id ${_id}`));
+
+              if (!d) return res( // error on update
+                Boom.notFound(`${modelName} does not exist`)
+              );
+
+              return res(d); // CODE: 200 => OK
+
             })
-            .catch(err => res(Boom.badRequest(err.message)));
+            .catch(err => res( // mongoose, mongodb errors (400)
+              Boom.badRequest(err.message)
+            ));
+
+          } else return res( // update failed
+            Boom.badRequest(`error while updating ${modelName} with _id ${_id}`)
+          );
+
         })
-        .catch(err => res(Boom.badRequest(err.message)));
+        .catch(err => res(
+          Boom.badRequest(err.message) // mongoose, mongodb errors (400)
+        ));
+
     },
 
-    DELETE: (req, res) => {
-      const {_id} = req.params;
+    delete: (req, res) => {
+
+      const {_id} = req.params; // _id from route
+
+      // hard / soft delete, default: hard: false
       const {hard} = req.query;
+
       if (hard) {
+
+        // hard delete
+        // remove entry in collection
+
         Model.remove({_id})
-          .then(() => res().code(204))
-          .catch(err => res(Boom.badRequest(err.message)));
+          .then(() => res().code(204)) // CODE: 204 => NO CONTENT
+          .catch(err => res(
+            Boom.badRequest(err.message) // mongoose, mongodb error (400)
+          ));
+
       } else {
-        Model.update({_id}, {isActive: false})
+
+        // soft delete (DEFAULT)
+        // update isActive => false
+
+        Model.update({_id}, {isActive: false}, {upsert: true})
           .then(d => {
-            if (d.ok) return res().code(204);
-            else return res(Boom.badRequest(`error while deleting ${modelName} with _id ${_id}`));
+
+            if (d.ok) return res().code(204); // CODE: 204 => NO CONTENT
+
+            else return res(
+              Boom.badRequest(`error while deleting ${modelName} with _id ${_id}`)
+            );
+
           })
-          .catch(err => res(Boom.badRequest(err.message)));
+          .catch(err => res(
+            Boom.badRequest(err.message) // mongoose, mongodb error (400)
+          ));
+
       }
+
     }
 
   };
 
+  //******************************************************************//
+
   const routes = [
+
     {
+
       method: `GET`,
       path: `${route}`,
-      handler: methods.GET,
+
+      handler: methods.read,
+
       config: {
         tags: [`api`],
         validate: validation.GET
       }
+
     },
+
     {
+
       method: `GET`,
       path: `${route}/{_id}`,
-      handler: methods.GET_ONE,
+
+      handler: methods.readOne,
+
       config: {
         tags: [`api`],
         validate: validation.GET_ONE
       }
+
     },
+
     {
+
       method: `POST`,
       path: `${route}`,
-      handler: methods.POST,
+
+      handler: methods.create,
+
       config: {
         tags: [`api`],
         validate: validation.POST
       }
+
     },
+
     {
+
       method: `DELETE`,
       path: `${route}/{_id}`,
-      handler: methods.DELETE,
+
+      handler: methods.delete,
+
       config: {
         tags: [`api`],
         validate: validation.DELETE
       }
+
     },
+
     {
+
       method: `PATCH`,
       path: `${route}/{_id}`,
-      handler: methods.UPDATE,
+
+      handler: methods.update,
+
       config: {
         tags: [`api`],
         validate: validation.PATCH
       }
+
     },
+
     {
+
       method: `PUT`,
       path: `${route}/{_id}`,
-      handler: methods.UPDATE,
+
+      handler: methods.update,
+
       config: {
         tags: [`api`],
         validate: validation.PUT
       }
+
     }
+
   ];
 
   return routes;
+
 };

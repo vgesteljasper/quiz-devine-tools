@@ -2,7 +2,9 @@ import React from 'react';
 import {string, number, bool} from 'prop-types';
 import {observer} from 'mobx-react';
 
-const AnswerStat = ({answer, votes, totalVotes, correct}) => {
+import ButtonDetail from './Button/Detail';
+
+const AnswerStat = ({answer, votes, totalVotes, correct, detail}) => {
 
   const width = `${(votes / totalVotes) * 100}%`;
   const backgroundColor = correct ? `lighrgreen` : `pink`;
@@ -10,7 +12,10 @@ const AnswerStat = ({answer, votes, totalVotes, correct}) => {
 
   return (
     <div className='stat'>
-      <span className='stat__answer'>{answer}</span>
+      <h5 className='stat__answer'>
+        <ButtonDetail value={detail} />
+        <span>{answer}</span>
+      </h5>
       <span className='stat__votes'>{votes}</span>
       <div className='stat__bar' style={styles}></div>
     </div>
@@ -21,7 +26,8 @@ AnswerStat.propTypes = {
   answer: string.isRequired,
   votes: number.isRequired,
   totalVotes: number.isRequired,
-  correct: bool.isRequired
+  correct: bool.isRequired,
+  detail: string.isRequired
 };
 
 export default observer(AnswerStat);

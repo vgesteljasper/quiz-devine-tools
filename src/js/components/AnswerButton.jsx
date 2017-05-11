@@ -6,7 +6,7 @@ import ButtonDetail from './Button/Detail';
 const AnswerButton = ({vote, answer, detail, enabled, voted}) => {
 
   const classes = [`button`, `answer`];
-  voted ? classes.push(`button_blue`) : classes;
+  voted ? classes.push(`button_dark`) : classes;
 
   return (
     <button disabled={enabled ? `` : `disabled`} onClick={vote} className={classes.join(` `)}>

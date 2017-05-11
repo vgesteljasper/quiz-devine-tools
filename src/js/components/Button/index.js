@@ -4,8 +4,12 @@ import {func, string} from 'prop-types';
 import Detail from './Detail';
 
 const Button = ({value, color, method, detail}) => {
+
+  const classes = [`button`];
+  color !== `` ? classes.push(`button_${color}`) : classes;
+
   return (
-    <button className={`button button_${color}`} onClick={() => method()}>
+    <button className={classes.join(` `)} onClick={() => method()}>
       {detail !== `` ? <Detail value={detail} /> : null}
       <span>{value}</span>
     </button>
@@ -14,13 +18,14 @@ const Button = ({value, color, method, detail}) => {
 
 Button.propTypes = {
   value: string.isRequired,
-  color: string.isRequired,
   method: func.isRequired,
-  detail: string
+  detail: string,
+  color: string
 };
 
 Button.defaultProps = {
-  detail: ``
+  detail: ``,
+  color: ``
 };
 
 export default Button;

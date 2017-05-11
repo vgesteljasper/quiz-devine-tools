@@ -1,4 +1,4 @@
-import {action, observable} from 'mobx';
+import {observable} from 'mobx';
 import Question from './Question';
 import {questionAPI} from './../lib/api/apiHelper';
 
@@ -13,7 +13,21 @@ export default class Quiz {
     this.name = name;
   }
 
-  @action loadQuestions = () => {
+  addQuestion = question => {
+    return questionAPI.insert(this.id, question)
+      .then(question => {
+        this._addQuestion(question);
+      });
+  }
+
+  removeQuestion = id => {
+    const question = this.questions.find(q => q.id === id);
+    if (question) {
+      console.log(`remove question`);
+    }
+  }
+
+  loadQuestions = () => {
     if (!this.loaded) {
       questionAPI.get(this.id).then(questions => this._addQuestion(...questions));
       this.loaded = true;
@@ -23,7 +37,7 @@ export default class Quiz {
   _addQuestion(...questions) {
     questions.forEach(q => {
       this.questions.push(
-        new Question(q._id, q.question)
+        new Question(q._id, q.question, this.adminActive)
       );
     });
   }

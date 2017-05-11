@@ -1,20 +1,18 @@
 import React from 'react';
-import {object, string} from 'prop-types';
-import {observer} from 'mobx-react';
+import {object, bool} from 'prop-types';
+import {inject, observer} from 'mobx-react';
 
 import AnswerButton from './AnswerButton';
 import AnswerStat from './AnswerStat';
 
-const Question = ({question: quest, type}) => {
+const Question = ({question: quest, adminActive}) => {
 
-  const {question, answers, loadAnswers, startMonitoringVotes, totalVotes} = quest;
+  const {question, answers, totalVotes, startMonitoringVotes} = quest;
   const letters = [`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`, `L`, `M`, `N`];
-
-  loadAnswers();
 
   const classes = [`answer-list`, `responder`];
 
-  if (type === `observer`) {
+  if (adminActive) {
     startMonitoringVotes();
     classes.pop();
     classes.push(`observer`);
@@ -25,9 +23,9 @@ const Question = ({question: quest, type}) => {
       <h4 className='question__name'>{question}</h4>
       <div className={classes.join(` `)}>
         {
-          type === `responder`
-            ? answers.map((a, i) => <AnswerButton key={a.id} {...a} vote={a.vote} detail={`${letters[i]}.`} />)
-            : answers.map(a => <AnswerStat key={a.id} {...a} totalVotes={totalVotes} />)
+          adminActive
+            ? answers.map((a, i) => <AnswerStat key={a.id} {...a} totalVotes={totalVotes} detail={`${letters[i]}.`} />)
+            : answers.map((a, i) => <AnswerButton key={a.id} {...a} vote={a.vote} detail={`${letters[i]}.`} />)
         }
       </div>
     </div>
@@ -36,7 +34,9 @@ const Question = ({question: quest, type}) => {
 
 Question.propTypes = {
   question: object.isRequired,
-  type: string.isRequired
+  adminActive: bool.isRequired
 };
 
-export default observer(Question);
+export default inject(({store}) => {
+  return {adminActive: store.adminActive};
+})(observer(Question));

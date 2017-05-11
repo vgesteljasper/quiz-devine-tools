@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx';
+import {observable} from 'mobx';
 import Answer from './Answer';
 import {voteAPI, answerAPI} from './../lib/api/apiHelper';
 
@@ -6,52 +6,76 @@ export default class Question {
 
   @observable answers = []
   @observable question = ``
-  @observable totalVotes = 0;
+  @observable totalVotes = 0
+
+  refreshInterval = 0
+  statusInterval = 0
   loaded = false
-  setInterval = false
 
   constructor(id, question) {
     this.id = id;
     this.question = question;
+
+    answerAPI.get(this.id)
+      .then(answers => this._addAnswer(...answers))
+      .then(() => this.loaded = true);
   }
 
-  loadAnswers = () => {
-    if (!this.loaded) {
-      answerAPI.get(this.id).then(answers => this._addAnswer(...answers));
-      this.loaded = true;
+  startMonitoringVotes = () => {
+    // if (!this.loaded) { // if answers not loaded yet, start monitoring for this and start after they are loaded
+    //   this._startStatusInterval();
+    // } else { // start if answers are loaded
+    //   this._startMonitorInterval();
+    // }
+  }
+
+  _startStatusInterval = () => {
+    if (this.statusInterval === 0) { // set interval for checking if answers are loaded
+      this.statusInterval = setInterval(this._checkStatus, 100);
     }
   }
 
-  @action startMonitoringVotes = () => {
-    if (!this.setInterval) {
-      this.refreshInterval = setInterval(this._getVotes, 2000);
-      this.setInterval = true;
+  _checkStatus = () => {
+    if (this.loaded) { // if answers are loaded
+      if (this.statusInterval !== 0) { // stop this func from executing
+        clearInterval(this.statusInterval);
+        this.statusInterval = 0;
+      }
+      // start monitoring votes
+      this._startMonitorInterval();
     }
   }
 
-  @action stopMonitoringVotes = () => {
-    clearInterval(this.refreshInterval);
-    this.setInterval = false;
+  _startMonitorInterval = () => {
+    if (this.refreshInterval === 0) {
+      this._getVotes(); // get votes
+      this.refreshInterval = setInterval(this._getVotes, 2000); // set interval for getting votes
+    }
   }
 
-  _getVotes = () => {
+  stopMonitoringVotes = () => { // stop interval for monitoring
+    if (this.refreshInterval !== 0) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = 0;
+    }
+  }
 
-    // fetch votes for all answers
+  _getVotes = () => { // fetch votes for all answers
     voteAPI.get(this.id).then(votes => {
       this._updateVotes(...votes);
     });
   }
 
   _updateVotes = (...answers) => {
-    let totalVotes = 0;
+    let totalVotes = 0; // calculate total votes
     answers.forEach((answer, iteration) => {
       totalVotes += Number(answer.votes);
-      this.answers[iteration]._pushVotes(answer.votes);
+      this.answers[iteration]._pushVotes(answer.votes); // push new votes to correct Answer instance
     });
     this.totalVotes = totalVotes;
   }
 
-  @action disablaAnswers = () => {
+  disablaAnswers = () => {
     this.answers.forEach(a => a._disable());
   }
 
