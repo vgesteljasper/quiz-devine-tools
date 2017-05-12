@@ -1,5 +1,5 @@
 import React from 'react';
-import {inject, PropTypes} from 'mobx-react';
+import {inject, observer, PropTypes} from 'mobx-react';
 import {func} from 'prop-types';
 import {default as swal} from 'sweetalert2';
 
@@ -8,12 +8,29 @@ import DeleteButton from './../DeleteButton';
 
 const QuizActions = ({quiz, removeQuiz}) => {
 
-  const {id, name, addQuestion} = quiz;
+  const {id, name, addQuestion, isLive, toggleLive} = quiz;
 
-  const removeQuizHandler = () => {
+  const toggleLiveHandler = () => {
     swal({
-      title: name,
-      text: `Are you sure you want to delete this quiz?`,
+      title: isLive ? `Unpublish this quiz?` : `Publish this quiz?`,
+      text: name,
+      confirmButtonText: isLive ? `Unpublish` : `Publish`,
+      showCancelButton: true,
+      showLoaderOnConfirm: true,
+      confirmButtonColor: isLive ? `#f82831` : `#3085d6`
+    })
+    .then(() => {
+      toggleLive()
+      .then(() => swal(`Success`, `${isLive ? `Quiz is unpublished` : `Quiz is published`}`, `success`))
+      .catch(() => swal(`Error`, `Quiz couldn't be made live. Please try again.`, `error`));
+    })
+    .catch(err => console.log(err));
+  };
+
+  const deleteQuizHandler = () => {
+    swal({
+      title: `Are you sure you want to delete this quiz?`,
+      text: name,
       confirmButtonText: `Delete`,
       showCancelButton: true,
       showLoaderOnConfirm: true,
@@ -45,8 +62,9 @@ const QuizActions = ({quiz, removeQuiz}) => {
 
   return (
     <div className='action-bar action-bar_right'>
-      <Button value='Add Question' color='green' method={addQuestionHandler} />
-      <DeleteButton method={removeQuizHandler} />
+      <Button value={isLive ? `Unpublish Quiz` : `Publish Quiz`} type='small' color={isLive ? `red` : `blue`} method={toggleLiveHandler} />
+      <Button value='Add Question' type='small' method={addQuestionHandler} />
+      <DeleteButton method={deleteQuizHandler} />
     </div>
   );
 
@@ -59,4 +77,4 @@ QuizActions.propTypes = {
 
 export default inject(({store}) => {
   return {removeQuiz: store.removeQuiz};
-})(QuizActions);
+})(observer(QuizActions));

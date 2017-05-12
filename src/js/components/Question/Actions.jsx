@@ -7,10 +7,10 @@ import DeleteButton from './../DeleteButton';
 
 const QuestionActions = ({id, question, removeQuestion, addAnswer}) => {
 
-  const removeQuestionHandler = () => {
+  const deleteQuestionHandler = () => {
     swal({
-      title: question,
-      text: `Are you sure you want to delete this question?`,
+      title: `Are you sure you want to delete this question?`,
+      text: question,
       confirmButtonText: `Delete`,
       showCancelButton: true,
       showLoaderOnConfirm: true,
@@ -53,7 +53,7 @@ const QuestionActions = ({id, question, removeQuestion, addAnswer}) => {
   return (
     <div className='action-bar action-bar_right'>
       <Button value='Add Answer' type='small' method={addAnswerHandler} />
-      <DeleteButton method={removeQuestionHandler} />
+      <DeleteButton method={deleteQuestionHandler} />
     </div>
   );
 

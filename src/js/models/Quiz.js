@@ -1,16 +1,18 @@
 import {observable} from 'mobx';
 import Question from './Question';
-import {questionAPI} from './../lib/api/apiHelper';
+import {questionAPI, quizAPI} from './../lib/api/apiHelper';
 
 export default class Quiz {
 
   @observable questions = []
+  @observable isLive = false
   loaded = false
 
-  constructor(id, created, name) {
+  constructor(id, created, name, isLive) {
     this.id = id;
     this.created = created;
     this.name = name;
+    this.isLive = isLive;
   }
 
   addQuestion = question => {
@@ -32,6 +34,13 @@ export default class Quiz {
       questionAPI.get(this.id).then(questions => this._addQuestion(...questions));
       this.loaded = true;
     }
+  }
+
+  toggleLive = () => {
+    return quizAPI.toggleLive(this.id, !this.isLive) // toggle in db
+      .then(() => {
+        this.isLive = !this.isLive; // toggle in quiz object if succeeded
+      });
   }
 
   _addQuestion(...questions) {

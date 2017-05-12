@@ -17,8 +17,8 @@ const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
 
   const removeAnswerHandler = () => {
     swal({
-      title: answer,
-      text: `Are you sure you want to delete this answer?`,
+      title: `Are you sure you want to delete this answer?`,
+      text: answer,
       confirmButtonText: `Delete`,
       showCancelButton: true,
       showLoaderOnConfirm: true,

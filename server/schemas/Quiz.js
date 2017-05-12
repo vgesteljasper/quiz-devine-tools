@@ -5,6 +5,11 @@ const schema = {
     type: String,
     required: true,
     validation: Joi.string()
+  },
+  isLive: {
+    type: Boolean,
+    default: false,
+    validation: Joi.boolean()
   }
 };
 

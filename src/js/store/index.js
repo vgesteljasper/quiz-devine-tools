@@ -19,7 +19,7 @@ class Store {
   _addQuiz(...quizzes) {
     quizzes.forEach(q => {
       this.quizzes.push(
-        new Quiz(q._id, q.created, q.name)
+        new Quiz(q._id, q.created, q.name, q.isLive)
       );
     });
   }

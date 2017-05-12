@@ -9,7 +9,7 @@ import QuizActions from './Actions';
 
 const Quiz = ({quiz, adminActive}) => {
 
-  const {created, name, questions, loadQuestions, removeQuestion} = quiz;
+  const {isLive, created, name, questions, loadQuestions, removeQuestion} = quiz;
   loadQuestions();
 
   return (
@@ -26,7 +26,11 @@ const Quiz = ({quiz, adminActive}) => {
         }
       </div>
       <div className='question-list'>
-        {questions.map(q => <Question key={q.id} removeQuestion={removeQuestion} question={q} />)}
+        {
+          isLive || adminActive // show questions if client is admin and or if quiz is live
+            ? questions.map(q => <Question key={q.id} removeQuestion={removeQuestion} question={q} />)
+            : <h4>Quiz is not published yet.</h4> // show message if not admin and or not live
+        }
       </div>
     </section>
   );

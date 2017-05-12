@@ -25,6 +25,16 @@ export const quizAPI =  {
         if (response.status !== 204) throw new Error();
         return true;
       });
+  },
+  toggleLive: (id, isLive) => {
+    const method = `PATCH`;
+    const body = new FormData();
+    body.append(`isLive`, isLive);
+    return fetch(`/api/quizzes/${id}`, {method, body})
+      .then(response => {
+        if (response.status !== 200) throw new Error();
+        return true;
+      });
   }
 };
 
