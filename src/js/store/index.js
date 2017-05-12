@@ -10,28 +10,10 @@ class Store {
   @observable stagedQuestions = [];
   @observable stagedAnswers = [];
 
-  @observable isCreating = false;
   @observable adminActive = true;
 
   constructor() {
     quizAPI.get().then(quizzes => this._addQuiz(...quizzes));
-  }
-
-  toggleIsEditing = () => {
-    this.isCreating = !this.isCreating;
-  }
-
-  toggleAdminActive = () => {
-    if (!this.adminActive) {
-      if (confirm(`We'll assume you're an admin for now 😁\n\nENABLE ADMIN?`)) {
-        this.adminActive = true;
-      }
-    } else {
-      this.adminActive = false;
-
-      // NOTE: stop all quizzes from monitoring votes
-      this._stopMonitoringVotes();
-    }
   }
 
   _addQuiz(...quizzes) {
@@ -43,25 +25,26 @@ class Store {
   }
 
   addQuiz = name => {
-    quizAPI.insert(name).then(quiz => this._addQuiz(quiz));
+    return quizAPI.insert(name)
+      .then(quiz => this._addQuiz(quiz));
   }
 
   removeQuiz = id => {
-    const quiz = this.quizzes.find(q => q.id === id);
-    if (quiz) {
-      quizAPI.remove(id) // remove quiz from db
-        .then(() => { // remove quiz from store
-          this.quizzes = this.quizzes.filter(q => q.id !== id);
-        });
-    }
+    return quizAPI.remove(id) // remove quiz from db
+      .then(() => { // remove quiz from store
+        this.quizzes = this.quizzes.filter(q => q.id !== id);
+      });
   }
 
-  _stopMonitoringVotes = () => {
+  stopMonitoringVotes = () => {
+    console.log(`stop monitoring`);
     this.quizzes.forEach(q => {
-      q.questions.forEach(q => {
-        if (q.setInterval) q.stopMonitoringVotes();
-      });
+      q.questions.forEach(q => q.stopMonitoringVotes());
     });
+  }
+
+  toggleAdminActive = () => {
+    this.adminActive = !this.adminActive;
   }
 
 }

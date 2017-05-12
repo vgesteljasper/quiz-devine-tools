@@ -4,12 +4,12 @@ import {inject, observer, PropTypes} from 'mobx-react';
 import {bool} from 'prop-types';
 
 import {toDate} from './../../lib/dateFormat';
-import Question from './../Question';
+import Question from './../Question/';
 import QuizActions from './Actions';
 
 const Quiz = ({quiz, adminActive}) => {
 
-  const {created, name, questions, loadQuestions} = quiz;
+  const {created, name, questions, loadQuestions, removeQuestion} = quiz;
   loadQuestions();
 
   return (
@@ -26,7 +26,7 @@ const Quiz = ({quiz, adminActive}) => {
         }
       </div>
       <div className='question-list'>
-        {questions.map(q => <Question key={q.id} question={q} />)}
+        {questions.map(q => <Question key={q.id} removeQuestion={removeQuestion} question={q} />)}
       </div>
     </section>
   );

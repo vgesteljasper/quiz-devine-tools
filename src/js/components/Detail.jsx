@@ -1,12 +1,12 @@
 import React from 'react';
 import {string} from 'prop-types';
 
-const ButtonDetail = ({value}) => (
+const Detail = ({value}) => (
   <span className='button__detail'>{value}</span>
 );
 
-ButtonDetail.propTypes = {
+Detail.propTypes = {
   value: string.isRequired
 };
 
-export default ButtonDetail;
+export default Detail;

@@ -4,7 +4,7 @@ Joi.objectId = require(`joi-objectid`)(Joi);
 const schema = {
   questionId: {
     type: String,
-    require: true,
+    required: true,
     validation: Joi.objectId()
   },
   answer: {

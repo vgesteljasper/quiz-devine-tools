@@ -28,7 +28,8 @@ const config = {
 
   entry: removeEmpty([
     `./src/css/style.css`,
-    `./src/js/script.js`,
+    `./node_modules/sweetalert2/dist/sweetalert2.min.css`,
+    `./src/js/script.js`
   ]),
 
   resolve: {

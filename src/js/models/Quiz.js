@@ -21,10 +21,10 @@ export default class Quiz {
   }
 
   removeQuestion = id => {
-    const question = this.questions.find(q => q.id === id);
-    if (question) {
-      console.log(`remove question`);
-    }
+    return questionAPI.remove(id)
+      .then(() => {
+        this.questions = this.questions.filter(q => q.id !== id);
+      });
   }
 
   loadQuestions = () => {

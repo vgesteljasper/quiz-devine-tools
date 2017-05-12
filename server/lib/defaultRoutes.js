@@ -57,6 +57,7 @@ module.exports = Model => {
     if (!(`isActive` in filter)) {
       filter = Object.assign({}, {isActive: true}, filter);
     }
+    return filter;
   };
 
   const methods = {
@@ -102,8 +103,6 @@ module.exports = Model => {
         .then(({sort, skip, limit, fields: f, meta, filter}) => {
 
           filter = removeInactive(filter);
-
-          console.log(filter);
 
           Model.find(
             filter, // filter = empty as default

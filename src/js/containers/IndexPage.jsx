@@ -1,21 +1,17 @@
 import React from 'react';
 import {observer, inject, PropTypes} from 'mobx-react';
-import {bool} from 'prop-types';
+import {bool, func} from 'prop-types';
 
 import QuizLink from './../components/Quiz/Link';
 
-const IndexPage = ({quizzes, adminActive}) => {
+const IndexPage = ({stopMonitoringVotes, quizzes, adminActive}) => {
 
   const classes = [`content`, `quiz-list`];
   adminActive ? classes.push(`monitoring`) : classes;
 
-  // stop all Questions from monitoring votes
-  // eg: if coming back from other route where votes were updating
-  quizzes.forEach(quiz => {
-    quiz.questions.forEach(question => {
-      if (question.setInterval) question.stopMonitoringVotes();
-    });
-  });
+  // in case you pop state with back button
+  // or came back with router
+  stopMonitoringVotes();
 
   return (
     <main className={classes.join(` `)}>
@@ -25,11 +21,12 @@ const IndexPage = ({quizzes, adminActive}) => {
 };
 
 IndexPage.propTypes = {
+  stopMonitoringVotes: func.isRequired,
   quizzes: PropTypes.observableArray.isRequired,
   adminActive: bool.isRequired,
 };
 
 export default inject(({store}) => {
-  const {quizzes, adminActive} = store;
-  return {quizzes, adminActive};
+  const {stopMonitoringVotes, quizzes, adminActive} = store;
+  return {stopMonitoringVotes, quizzes, adminActive};
 })(observer(IndexPage));

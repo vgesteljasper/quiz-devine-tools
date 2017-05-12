@@ -21,12 +21,24 @@ export default class Question {
       .then(() => this.loaded = true);
   }
 
+  addAnswer = (answer, correct) => {
+    return answerAPI.insert(this.id, answer, correct)
+      .then(answer => this._addAnswer(answer));
+  }
+
+  removeAnswer = id => {
+    return answerAPI.remove(id) // remove answer from db
+      .then(() => { // remove answer from store
+        this.answers = this.answers.filter(a => a.id !== id);
+      });
+  }
+
   startMonitoringVotes = () => {
-    // if (!this.loaded) { // if answers not loaded yet, start monitoring for this and start after they are loaded
-    //   this._startStatusInterval();
-    // } else { // start if answers are loaded
-    //   this._startMonitorInterval();
-    // }
+    if (!this.loaded) { // if answers not loaded yet, start monitoring for this and start after they are loaded
+      this._startStatusInterval();
+    } else { // start if answers are loaded
+      this._startMonitorInterval();
+    }
   }
 
   _startStatusInterval = () => {

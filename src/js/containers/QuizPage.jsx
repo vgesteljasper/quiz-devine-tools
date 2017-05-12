@@ -6,7 +6,6 @@ import {Redirect} from 'react-router-dom';
 import Quiz from './../components/Quiz/';
 import Link from './../components/Link';
 
-
 const QuizPage = ({match, adminActive, quizzes}) => {
 
   const {path} = match;
@@ -29,7 +28,7 @@ const QuizPage = ({match, adminActive, quizzes}) => {
             : null
         }
         <div className='action-bar'>
-          <Link to='/' value='Back to overview' detail='&#10094;' color='red' />
+          <Link to='/' value='Back to overview' color='red' />
         </div>
       <Quiz quiz={quiz} />
       </main>

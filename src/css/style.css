@@ -36,7 +36,8 @@ body {
   align-items: center;
   justify-content: center;
   border: .2rem solid #d9d9d9;
-  height: 3.8rem;
+  max-height: 3.8rem;
+  height: 100%;
 
   &__detail {
     display: flex;
@@ -44,8 +45,21 @@ body {
     opacity: .5;
   }
 
+  &_small {
+    /*height: 2rem;*/
+    padding: 0 1rem;
+  }
+
   &:hover {
     cursor: pointer;
+  }
+
+  &_delete {
+
+    & path,
+    & rect {
+      fill: red;
+    }
   }
 
   &_blue {
@@ -124,9 +138,9 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  height: 3.8rem;
 
   & .button {
-    height: 3.8rem;
     margin: 0 1.2rem 0 0;
   }
 
@@ -229,6 +243,13 @@ body {
     font-size: 2rem;
     font-weight: 400;
   }
+
+  &__top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .answer-list {
@@ -238,7 +259,11 @@ body {
   justify-content: flex-start;
   flex-wrap: wrap;
 
-  &.observer {
+  &_responder {
+    height: 3.8rem;
+  }
+
+  &_observer {
     flex-direction: column;
     flex-wrap: wrap;
   }
@@ -259,16 +284,22 @@ body {
 }
 
 .stat {
-  height: 3.4rem;
-  border-radius: .2rem;
-  background-color: #f2f2f2;
   margin: 0 0 1rem;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
-  padding: 0 1rem;
-  position: relative;
+
+  &__visual {
+    border-radius: .2rem;
+    background-color: #f2f2f2;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    width: 100%;
+    position: relative;
+  }
 
   &__answer {
     font-size: 1.3rem;

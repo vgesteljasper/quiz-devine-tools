@@ -1,7 +1,7 @@
 import React from 'react';
 import {string, func, bool} from 'prop-types';
 
-import ButtonDetail from './Button/Detail';
+import Detail from './../Detail';
 
 const AnswerButton = ({vote, answer, detail, enabled, voted}) => {
 
@@ -10,7 +10,7 @@ const AnswerButton = ({vote, answer, detail, enabled, voted}) => {
 
   return (
     <button disabled={enabled ? `` : `disabled`} onClick={vote} className={classes.join(` `)}>
-      <ButtonDetail value={detail} />
+      <Detail value={detail} />
       <span>{answer}</span>
     </button>
   );

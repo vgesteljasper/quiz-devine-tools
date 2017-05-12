@@ -1,16 +1,14 @@
-/* eslint-disable react/jsx-filename-extension */
 import React from 'react';
 import {func, string} from 'prop-types';
-import Detail from './Detail';
 
-const Button = ({value, color, method, detail}) => {
+const Button = ({value, color, method, type}) => {
 
   const classes = [`button`];
   color !== `` ? classes.push(`button_${color}`) : classes;
+  type === `small` ? classes.push(`button_small`) : classes;
 
   return (
-    <button className={classes.join(` `)} onClick={() => method()}>
-      {detail !== `` ? <Detail value={detail} /> : null}
+    <button className={classes.join(` `)} onClick={method}>
       <span>{value}</span>
     </button>
   );
@@ -19,13 +17,13 @@ const Button = ({value, color, method, detail}) => {
 Button.propTypes = {
   value: string.isRequired,
   method: func.isRequired,
-  detail: string,
-  color: string
+  color: string,
+  type: string
 };
 
 Button.defaultProps = {
-  detail: ``,
-  color: ``
+  color: ``,
+  type: ``
 };
 
 export default Button;
