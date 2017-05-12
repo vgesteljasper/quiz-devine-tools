@@ -10,7 +10,7 @@ class Store {
   @observable stagedQuestions = [];
   @observable stagedAnswers = [];
 
-  @observable adminActive = true;
+  @observable adminActive = false;
 
   constructor() {
     quizAPI.get().then(quizzes => this._addQuiz(...quizzes));
