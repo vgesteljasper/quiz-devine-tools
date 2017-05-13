@@ -36,6 +36,14 @@ class Store {
       });
   }
 
+  editQuiz = (id, name) => {
+    return quizAPI.update(id, name)
+      .then(() => {
+        const quiz = this.quizzes.find(q => q.id === id);
+        quiz.name = name;
+      });
+  }
+
   stopMonitoringVotes = () => {
     console.log(`stop monitoring`);
     this.quizzes.forEach(q => {

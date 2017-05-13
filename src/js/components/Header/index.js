@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 import React from 'react';
 import Actions from './Actions';
-import DevineLogo from './../DevineLogo';
+import DevineLogo from './../Icon/DevineLogo';
 import {Link} from 'react-router-dom';
 
 const Header = () => (

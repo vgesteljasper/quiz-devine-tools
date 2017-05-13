@@ -6,6 +6,8 @@ export default class Quiz {
 
   @observable questions = []
   @observable isLive = false
+  @observable name = ``
+
   loaded = false
 
   constructor(id, created, name, isLive) {
@@ -26,6 +28,14 @@ export default class Quiz {
     return questionAPI.remove(id)
       .then(() => {
         this.questions = this.questions.filter(q => q.id !== id);
+      });
+  }
+
+  editQuestion = (id, quest) => {
+    return questionAPI.update(id, quest)
+      .then(() => {
+        const question = this.questions.find(q => q.id === id);
+        question.question = quest;
       });
   }
 

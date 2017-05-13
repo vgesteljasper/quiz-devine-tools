@@ -5,7 +5,7 @@ import {func, number} from 'prop-types';
 import {default as swal} from 'sweetalert2';
 
 import Detail from './../Detail';
-import DeleteButton from './../DeleteButton';
+import ActionIconButton from './../ActionIconButton';
 
 const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
 
@@ -15,7 +15,7 @@ const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
   const backgroundColor = correct ? `lighrgreen` : `pink`;
   const styles = {width, backgroundColor};
 
-  const removeAnswerHandler = () => {
+  const deleteAnswerHandler = () => {
     swal({
       title: `Are you sure you want to delete this answer?`,
       text: answer,
@@ -27,7 +27,7 @@ const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
     })
     .then(() => {
       removeAnswer(id)
-        .then(() => swal(`Success`, `Answer has been deleted.`, `success`))
+        // .then(() => swal(`Success`, `Answer has been deleted.`, `success`))
         .catch(() => swal(`Error`, `Answer couldn't be deleted. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
@@ -38,13 +38,13 @@ const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
       <div className='stat__visual'>
         <h5 className='stat__answer'>
           <Detail value={detail} />
-          <span>{answer}</span>
+          <span>{answer} {correct ? ` (True)` : ` (False)`}</span>
         </h5>
         <span className='stat__votes'>{votes}</span>
         <div className='stat__bar' style={styles}></div>
       </div>
       <div className='action-bar action-bar_right'>
-        <DeleteButton method={removeAnswerHandler} />
+        <ActionIconButton type='delete' title='Delete Answer' method={deleteAnswerHandler} />
       </div>
     </div>
   );

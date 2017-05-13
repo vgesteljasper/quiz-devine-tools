@@ -1,14 +1,13 @@
 import React from 'react';
-import {inject, observer, PropTypes} from 'mobx-react';
-import {func} from 'prop-types';
+import {inject, observer} from 'mobx-react';
+import {func, string, bool} from 'prop-types';
 import {default as swal} from 'sweetalert2';
 
 import Button from './../Button';
-import DeleteButton from './../DeleteButton';
+import ActionIconButton from './../ActionIconButton';
+import LiveReloading from './../Icon/LiveReloading';
 
-const QuizActions = ({quiz, removeQuiz}) => {
-
-  const {id, name, addQuestion, isLive, toggleLive} = quiz;
+const QuizActions = ({id, name, isLive, toggleLive, addQuestion, removeQuiz, editQuiz}) => {
 
   const toggleLiveHandler = () => {
     swal({
@@ -38,7 +37,7 @@ const QuizActions = ({quiz, removeQuiz}) => {
     })
     .then(() => {
       removeQuiz(id)
-      .then(() => swal(`Success`, `Quiz has been deleted.`, `success`))
+      // .then(() => swal(`Success`, `Quiz has been deleted.`, `success`))
       .catch(() => swal(`Error`, `Quiz couldn't be deleted. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
@@ -54,27 +53,50 @@ const QuizActions = ({quiz, removeQuiz}) => {
       showLoaderOnConfirm: true
     }).then(name => {
       addQuestion(name)
-        .then(() => swal(`Success`, `Question has been added.`, `success`))
+        // .then(() => swal(`Success`, `Question has been added.`, `success`))
         .catch(() => swal(`Error`, `Question couldn't be created. Please try again.`, `error`));
+    })
+    .catch(err => console.log(err));
+  };
+
+  const editQuizHandler = () => {
+    swal({
+      title: `Edit Quiz.`,
+      text: `What is the new name?`,
+      input: `text`,
+      confirmButtonText: `Update`,
+      showCancelButton: true,
+      showLoaderOnConfirm: true
+    }).then(name => {
+      editQuiz(id, name)
+        // .then(() => swal(`Success`, `Quiz has been updated.`, `success`))
+        .catch(() => swal(`Error`, `Quiz couldn't be updated. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
   };
 
   return (
     <div className='action-bar action-bar_right'>
+      {isLive ? <LiveReloading /> : null}
       <Button value={isLive ? `Unpublish Quiz` : `Publish Quiz`} type='small' color={isLive ? `red` : `blue`} method={toggleLiveHandler} />
       <Button value='Add Question' type='small' method={addQuestionHandler} />
-      <DeleteButton method={deleteQuizHandler} />
+      <ActionIconButton type='edit' method={editQuizHandler} title='Edit Quiz Name' />
+      <ActionIconButton type='delete' method={deleteQuizHandler} title='Delete Quiz' />
     </div>
   );
 
 };
 
 QuizActions.propTypes = {
-  quiz: PropTypes.observableObject.isRequired,
-  removeQuiz: func.isRequired
+  id: string.isRequired,
+  name: string.isRequired,
+  isLive: bool.isRequired,
+  toggleLive: func.isRequired,
+  addQuestion: func.isRequired,
+  removeQuiz: func.isRequired,
+  editQuiz: func.isRequired
 };
 
 export default inject(({store}) => {
-  return {removeQuiz: store.removeQuiz};
+  return {removeQuiz: store.removeQuiz, editQuiz: store.editQuiz};
 })(observer(QuizActions));

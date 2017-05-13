@@ -7,7 +7,7 @@ import AnswerButton from './../Answer/Button';
 import AnswerStat from './../Answer/Stat';
 import QuestionActions from './Actions';
 
-const Question = ({question: quest, removeQuestion, adminActive}) => {
+const Question = ({question: quest, removeQuestion, editQuestion, adminActive, isLive}) => {
 
   const {id, question, answers, totalVotes, startMonitoringVotes, removeAnswer, addAnswer} = quest;
   const letters = [`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`, `L`, `M`, `N`];
@@ -15,17 +15,24 @@ const Question = ({question: quest, removeQuestion, adminActive}) => {
   const classes = [`answer-list`];
 
   if (adminActive) {
-    startMonitoringVotes();
     classes.push(`answer-list_observer`);
   } else {
     classes.push(`answer-list_responder`);
   }
 
+  if (adminActive && isLive) {
+    startMonitoringVotes();
+  }
+
+  const QuestionActionsData = {
+    id, question, removeQuestion, editQuestion, addAnswer, isLive
+  };
+
   return (
     <div className='question'>
       <div className='question__top'>
         <h4 className='question__name'>{question}</h4>
-        {adminActive ? <QuestionActions id={id} question={question} removeQuestion={removeQuestion} addAnswer={addAnswer} /> : null}
+        {adminActive ? <QuestionActions {...QuestionActionsData} /> : null}
       </div>
       <div className={classes.join(` `)}>
         {
@@ -41,7 +48,9 @@ const Question = ({question: quest, removeQuestion, adminActive}) => {
 Question.propTypes = {
   question: object.isRequired,
   removeQuestion: func.isRequired,
-  adminActive: bool.isRequired
+  editQuestion: func.isRequired,
+  adminActive: bool.isRequired,
+  isLive: bool.isRequired
 };
 
 export default inject(({store}) => {

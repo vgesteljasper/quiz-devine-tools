@@ -35,6 +35,16 @@ export const quizAPI =  {
         if (response.status !== 200) throw new Error();
         return true;
       });
+  },
+  update: (id, name) => {
+    const method = `PATCH`;
+    const body = new FormData();
+    body.append(`name`, name);
+    return fetch(`/api/quizzes/${id}`, {method, body})
+      .then(response => {
+        if (response.status !== 200) throw new Error();
+        return true;
+      });
   }
 };
 
@@ -64,6 +74,16 @@ export const questionAPI = {
     return fetch(`/api/questions/${id}`, {method})
       .then(response => {
         if (response.status !== 204) throw new Error();
+        return true;
+      });
+  },
+  update: (id, question) => {
+    const method = `PATCH`;
+    const body = new FormData();
+    body.append(`question`, question);
+    return fetch(`/api/questions/${id}`, {method, body})
+      .then(response => {
+        if (response.status !== 200) throw new Error();
         return true;
       });
   }

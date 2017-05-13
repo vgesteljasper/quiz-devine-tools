@@ -62,6 +62,14 @@ body {
     }
   }
 
+  &_edit {
+
+    & path,
+    & rect {
+      fill: black;
+    }
+  }
+
   &_blue {
     background-color: #28f8ef;
     border-color: #06c6bc;
@@ -351,6 +359,17 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+  }
+}
+
+.live-reloading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 2rem;
+
+  &__icon {
+    margin-right: 2rem;
   }
 }
 
