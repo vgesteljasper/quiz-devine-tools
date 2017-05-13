@@ -1,4 +1,14 @@
+# GENERAL
+
 node_modules
-.env
 .DS_Store
-src
+
+
+# GITHUB
+
+server/public
+
+# HEROKU
+
+#.env
+#src
