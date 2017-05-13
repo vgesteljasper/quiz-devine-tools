@@ -1,0 +1,66 @@
+import {observable} from 'mobx';
+import Quiz from './../models/Quiz';
+import {quizAPI} from './../lib/api/apiHelper';
+
+class Store {
+
+  @observable quizzes = [];
+
+  @observable stagedQuiz = {};
+  @observable stagedQuestions = [];
+  @observable stagedAnswers = [];
+
+  @observable adminActive = false;
+
+  constructor() {
+    quizAPI.get().then(quizzes => this._addQuiz(...quizzes));
+  }
+
+  _addQuiz(...quizzes) {
+    quizzes.forEach(q => {
+      this.quizzes.push(
+        new Quiz(q._id, q.created, q.name, q.isLive)
+      );
+    });
+  }
+
+  addQuiz = name => {
+    return quizAPI.insert(name)
+      .then(quiz => this._addQuiz(quiz));
+  }
+
+  removeQuiz = id => {
+    return quizAPI.remove(id) // remove quiz from db
+      .then(() => { // remove quiz from store
+        this.quizzes = this.quizzes.filter(q => q.id !== id);
+      });
+  }
+
+  editQuiz = (id, name) => {
+    return quizAPI.update(id, name)
+      .then(() => {
+        const quiz = this.quizzes.find(q => q.id === id);
+        quiz.name = name;
+      });
+  }
+
+  stopMonitoringVotes = () => {
+    console.log(`stop monitoring`);
+    this.quizzes.forEach(q => {
+      q.questions.forEach(q => q.stopMonitoringVotes());
+    });
+  }
+
+  toggleAdminActive = () => {
+    this.adminActive = !this.adminActive;
+  }
+
+}
+
+const store = new Store();
+
+if (process.env.NODE_ENV !== `production`) {
+  window.store = store;
+}
+
+export default store;
