@@ -1,11 +1,12 @@
 import React from 'react';
-import {inject, observer} from 'mobx-react';
-import {func, bool} from 'prop-types';
+import {inject, observer, PropTypes} from 'mobx-react';
 import {default as swal} from 'sweetalert2';
 
 import Button from './../Button';
 
-const HeaderActions = ({addQuiz, adminActive, toggleAdminActive, stopMonitoringVotes}) => {
+const HeaderActions = ({store}) => {
+
+  const {addQuiz, adminActive, toggleAdminActive, stopMonitoringQuiz} = store;
 
   const sharedSettings = {
     showCancelButton: true,
@@ -40,26 +41,28 @@ const HeaderActions = ({addQuiz, adminActive, toggleAdminActive, stopMonitoringV
       .catch(err => console.log(err));
     } else {
       toggleAdminActive();
-      stopMonitoringVotes();
+      stopMonitoringQuiz();
     }
   };
 
   return (
     <div className='action-bar action-bar_right'>
-      {adminActive ? <Button value='New Quiz' method={newQuizHandler} /> : null}
-      <Button value={adminActive ? `Admin (On)` : `Admin (off)`} color={adminActive ? `red` : `blue`} method={toggleAdminActiveHandler} />
+      {
+        adminActive
+        ? <Button value='New Quiz' method={newQuizHandler} />
+        : null
+      }
+      <Button
+        value={adminActive ? `Admin (On)` : `Admin (off)`}
+        color={adminActive ? `red` : `blue`}
+        method={toggleAdminActiveHandler}
+      />
     </div>
   );
 };
 
 HeaderActions.propTypes = {
-  addQuiz: func.isRequired,
-  adminActive: bool.isRequired,
-  toggleAdminActive: func.isRequired,
-  stopMonitoringVotes: func.isRequired
+  store: PropTypes.observableObject.isRequired
 };
 
-export default inject(({store}) => {
-  const {addQuiz, adminActive, toggleAdminActive, stopMonitoringVotes} = store;
-  return {addQuiz, adminActive, toggleAdminActive, stopMonitoringVotes};
-})(observer(HeaderActions));
+export default inject(`store`)(observer(HeaderActions));

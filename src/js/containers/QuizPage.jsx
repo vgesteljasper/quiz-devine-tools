@@ -30,7 +30,7 @@ const QuizPage = ({match, adminActive, quizzes}) => {
         <div className='action-bar'>
           <Link to='/' value='Back to overview' color='red' />
         </div>
-      <Quiz {...quiz} />
+        <Quiz quiz={quiz} />
       </main>
     );
   } else {

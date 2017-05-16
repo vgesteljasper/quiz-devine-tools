@@ -1,15 +1,16 @@
 import React from 'react';
 import {string} from 'prop-types';
-import {observer, PropTypes} from 'mobx-react';
-import {func, number} from 'prop-types';
+import {inject, observer, PropTypes} from 'mobx-react';
+import {object, number} from 'prop-types';
 import {default as swal} from 'sweetalert2';
 
 import Detail from './../Detail';
 import ActionIconButton from './../ActionIconButton';
 
-const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
+const AnswerStat = ({answer: answr, totalVotes, detail, store}) => {
 
   const {id, answer, correct, votes} = answr;
+  const {removeAnswer} = store;
 
   const width = `${(votes / totalVotes) * 100}%`;
   const backgroundColor = correct ? `lighrgreen` : `pink`;
@@ -27,7 +28,6 @@ const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
     })
     .then(() => {
       removeAnswer(id)
-        // .then(() => swal(`Success`, `Answer has been deleted.`, `success`))
         .catch(() => swal(`Error`, `Answer couldn't be deleted. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
@@ -43,7 +43,7 @@ const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
         <span className='stat__votes'>{votes}</span>
         <div className='stat__bar' style={styles}></div>
       </div>
-      <div className='action-bar action-bar_right'>
+      <div className='action-bar action-bar_answer action-bar_right'>
         <ActionIconButton type='delete' title='Delete Answer' method={deleteAnswerHandler} />
       </div>
     </div>
@@ -51,10 +51,10 @@ const AnswerStat = ({answer: answr, removeAnswer, totalVotes, detail}) => {
 };
 
 AnswerStat.propTypes = {
-  answer: PropTypes.observableObject.isRequired,
-  removeAnswer: func.isRequired,
+  answer: object.isRequired,
   totalVotes: number.isRequired,
-  detail: string.isRequired
+  detail: string.isRequired,
+  store: PropTypes.observableObject.isRequired
 };
 
-export default observer(AnswerStat);
+export default inject(`store`)(observer(AnswerStat));

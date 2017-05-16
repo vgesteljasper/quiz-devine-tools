@@ -1,12 +1,15 @@
 import React from 'react';
 import {string, bool} from 'prop-types';
+import {inject} from 'mobx-react';
 import {Link} from 'react-router-dom';
 
 import {toDate} from './../../lib/dateFormat';
 
 const QuizLink = ({id, created, name, adminActive}) => {
 
-  const target = adminActive ? `/quiz/observer/${id}` : `/quiz/${id}`;
+  const target = adminActive
+    ? `/quiz/observer/${id}`
+    : `/quiz/${id}`;
 
   return (
     <Link className='quiz-link' to={target}>
@@ -23,4 +26,6 @@ QuizLink.propTypes = {
   adminActive: bool.isRequired
 };
 
-export default QuizLink;
+export default inject(({store}) => {
+  return {adminActive: store.adminActive};
+})(QuizLink);

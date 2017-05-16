@@ -1,44 +1,49 @@
 /* eslint-disable react/jsx-filename-extension */
 import React from 'react';
-import {object, bool, func} from 'prop-types';
-import {inject, observer} from 'mobx-react';
+import {object} from 'prop-types';
+import {inject, observer, PropTypes} from 'mobx-react';
 
 import AnswerButton from './../Answer/Button';
 import AnswerStat from './../Answer/Stat';
 import QuestionActions from './Actions';
 
-const Question = ({question: quest, removeQuestion, editQuestion, adminActive, isLive}) => {
+const Question = ({question: quest, store}) => {
 
-  const {id, question, answers, totalVotes, startMonitoringVotes, removeAnswer, addAnswer} = quest;
+  const {id, question, isPublished, enabled, totalVotes} = quest;
+  const {adminActive, answers, startMonitoringQuiz} = store;
+  const filteredAnswers = answers.filter(a => a.questionId === id);
+
   const letters = [`A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`, `L`, `M`, `N`];
 
-  const classes = [`answer-list`];
+  const questionClasses = [`question`];
+  const answerListClasses = [`answer-list`];
 
   if (adminActive) {
-    classes.push(`answer-list_observer`);
+    questionClasses.push(`question_observer`);
+    answerListClasses.push(`answer-list_observer`);
   } else {
-    classes.push(`answer-list_responder`);
+    questionClasses.push(`question_responder`);
+    answerListClasses.push(`answer-list_responder`);
   }
 
-  if (adminActive && isLive) {
-    startMonitoringVotes();
-  }
-
-  const QuestionActionsData = {
-    id, question, removeQuestion, editQuestion, addAnswer, isLive
-  };
+  if (adminActive && isPublished) startMonitoringQuiz();
 
   return (
-    <div className='question'>
+    <div className={questionClasses.join(` `)}>
       <div className='question__top'>
         <h4 className='question__name'>{question}</h4>
-        {adminActive ? <QuestionActions {...QuestionActionsData} /> : null}
+        {adminActive ? <QuestionActions question={quest} /> : null}
       </div>
-      <div className={classes.join(` `)}>
+      <div className={answerListClasses.join(` `)}>
         {
           adminActive
-            ? answers.map((a, i) => <AnswerStat key={a.id} answer={a} removeAnswer={removeAnswer} totalVotes={totalVotes} detail={`${letters[i]}.`} />)
-            : answers.map((a, i) => <AnswerButton key={a.id} {...a} vote={a.vote} detail={`${letters[i]}.`} />)
+            ? filteredAnswers.map((a, i) => {
+              return <AnswerStat key={a.id} answer={a} detail={`${letters[i]}.`} totalVotes={totalVotes} />;
+            })
+            : filteredAnswers.map((a, i) => {
+              return (<AnswerButton key={a.id} question={quest} answer={a}
+              enabled={enabled} detail={`${letters[i]}.`} />);
+            })
         }
       </div>
     </div>
@@ -47,13 +52,7 @@ const Question = ({question: quest, removeQuestion, editQuestion, adminActive, i
 
 Question.propTypes = {
   question: object.isRequired,
-  removeQuestion: func.isRequired,
-  editQuestion: func.isRequired,
-  adminActive: bool.isRequired,
-  isLive: bool.isRequired
+  store: PropTypes.observableObject.isRequired
 };
 
-export default inject(({store}) => {
-  const {adminActive} = store;
-  return {adminActive};
-})(observer(Question));
+export default inject(`store`)(observer(Question));

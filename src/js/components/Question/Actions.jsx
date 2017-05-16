@@ -1,16 +1,19 @@
 import React from 'react';
-import {func, string} from 'prop-types';
+import {object} from 'prop-types';
+import {inject, PropTypes} from 'mobx-react';
 import {default as swal} from 'sweetalert2';
 
-import Button from './../Button';
 import ActionIconButton from './../ActionIconButton';
 
-const QuestionActions = ({id, question, removeQuestion, editQuestion, addAnswer}) => {
+const QuestionActions = ({question: quest, store}) => {
 
   const sharedSettings = {
     showCancelButton: true,
     showLoaderOnConfirm: true
   };
+
+  const {id, question} = quest;
+  const {removeQuestion, addAnswer, editQuestion} = store;
 
   const deleteQuestionHandler = () => {
     swal({
@@ -22,7 +25,6 @@ const QuestionActions = ({id, question, removeQuestion, editQuestion, addAnswer}
     })
     .then(() => {
       removeQuestion(id)
-        // .then(() => swal(`Success`, `Question has been deleted.`, `success`))
         .catch(() => swal(`Error`, `Question couldn't be deleted. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
@@ -48,8 +50,7 @@ const QuestionActions = ({id, question, removeQuestion, editQuestion, addAnswer}
     ];
     swal.queue(steps).then(result => {
       swal.resetDefaults();
-      addAnswer(...result)
-        // .then(() => swal(`Success`, `Answer has been added.`, `success`))
+      addAnswer(id, ...result)
         .catch(() => swal(`Error`, `Answer couldn't be created. Please try again.`, `error`));
     }, () => swal.resetDefaults());
   };
@@ -64,15 +65,14 @@ const QuestionActions = ({id, question, removeQuestion, editQuestion, addAnswer}
       ...sharedSettings
     }).then(question => {
       editQuestion(id, question)
-        // .then(() => swal(`Success`, `Question has been updated.`, `success`))
         .catch(() => swal(`Error`, `Question couldn't be updated. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
   };
 
   return (
-    <div className='action-bar action-bar_right'>
-      <Button value='Add Answer' type='small' method={addAnswerHandler} />
+    <div className='action-bar action-bar_quiz action-bar_right'>
+      <ActionIconButton type='new-answer' title='New Answer' method={addAnswerHandler} />
       <ActionIconButton type='edit' title='Edit Question' method={editQuestionHandler} />
       <ActionIconButton type='delete' title='Delete Question' method={deleteQuestionHandler} />
     </div>
@@ -81,11 +81,8 @@ const QuestionActions = ({id, question, removeQuestion, editQuestion, addAnswer}
 };
 
 QuestionActions.propTypes = {
-  id: string.isRequired,
-  question: string.isRequired,
-  removeQuestion: func.isRequired,
-  editQuestion: func.isRequired,
-  addAnswer: func.isRequired
+  question: object.isRequired,
+  store: PropTypes.observableObject.isRequired
 };
 
-export default QuestionActions;
+export default inject(`store`)(QuestionActions);

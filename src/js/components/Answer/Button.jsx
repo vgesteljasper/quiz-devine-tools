@@ -1,15 +1,26 @@
 import React from 'react';
-import {string, func, bool} from 'prop-types';
+import {inject, PropTypes} from 'mobx-react';
+import {object, string, bool} from 'prop-types';
 
 import Detail from './../Detail';
 
-const AnswerButton = ({vote, answer, detail, enabled, voted}) => {
+const AnswerButton = ({answer: answr, question: quest, enabled, detail, store}) => {
+
+  const {id: answerId, answer, voted} = answr;
+  const {id: questionId} = quest;
+  const {voteAnswer} = store;
 
   const classes = [`button`, `answer`];
   voted ? classes.push(`button_dark`) : classes;
 
+  const voteAnswerHandler = () => voteAnswer(answerId, questionId);
+
   return (
-    <button disabled={enabled ? `` : `disabled`} onClick={vote} className={classes.join(` `)}>
+    <button
+      disabled={enabled ? `` : `disabled`}
+      onClick={voteAnswerHandler}
+      className={classes.join(` `)}
+    >
       <Detail value={detail} />
       <span>{answer}</span>
     </button>
@@ -17,11 +28,11 @@ const AnswerButton = ({vote, answer, detail, enabled, voted}) => {
 };
 
 AnswerButton.propTypes = {
-  vote: func.isRequired,
-  answer: string.isRequired,
-  detail: string.isRequired,
+  answer: object.isRequired,
+  question: object.isRequired,
   enabled: bool.isRequired,
-  voted: bool.isRequired
+  detail: string.isRequired,
+  store: PropTypes.observableObject.isRequired
 };
 
-export default AnswerButton;
+export default inject(`store`)(AnswerButton);

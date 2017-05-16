@@ -1,15 +1,21 @@
 /* eslint-disable react/jsx-filename-extension */
 import React from 'react';
 import {inject, observer, PropTypes} from 'mobx-react';
-import {bool, string, func} from 'prop-types';
+import {object} from 'prop-types';
 
 import {toDate} from './../../lib/dateFormat';
 import Question from './../Question/';
 import QuizActions from './Actions';
 
-const Quiz = ({id, isLive, toggleLive, addQuestion, editQuestion, created, name, questions, loadQuestions, removeQuestion, adminActive}) => {
+const Quiz = ({quiz, store}) => {
 
-  loadQuestions();
+  const {id, name, created, published} = quiz;
+  const {adminActive, questions, startMonitoringQuiz, stopMonitoringQuiz} = store;
+
+  const filteredQuestions = questions.filter(q => q.quizId === id);
+
+  if (adminActive && published) startMonitoringQuiz(id);
+  else stopMonitoringQuiz();
 
   return (
     <section className='quiz'>
@@ -20,14 +26,14 @@ const Quiz = ({id, isLive, toggleLive, addQuestion, editQuestion, created, name,
         </div>
         {
           adminActive
-            ? <QuizActions id={id} name={name} isLive={isLive} toggleLive={toggleLive} addQuestion={addQuestion} />
+            ? <QuizActions quiz={quiz} />
             : null
         }
       </div>
       <div className='question-list'>
         {
-          isLive || adminActive // show questions if client is admin and or if quiz is live
-            ? questions.map(q => <Question key={q.id} isLive={isLive} removeQuestion={removeQuestion} question={q} editQuestion={editQuestion} />)
+          published || adminActive
+            ? filteredQuestions.map(q => <Question key={q.id} question={q} />) // show questions if client is admin and or if quiz is live
             : <h4>Quiz is not published yet.</h4> // show message if not admin and or not live
         }
       </div>
@@ -36,19 +42,8 @@ const Quiz = ({id, isLive, toggleLive, addQuestion, editQuestion, created, name,
 };
 
 Quiz.propTypes = {
-  id: string.isRequired,
-  isLive: bool.isRequired,
-  toggleLive: func.isRequired,
-  addQuestion: func.isRequired,
-  editQuestion: func.isRequired,
-  created: string.isRequired,
-  name: string.isRequired,
-  questions: PropTypes.observableArray.isRequired,
-  loadQuestions: func.isRequired,
-  removeQuestion: func.isRequired,
-  adminActive: bool.isRequired
+  quiz: object.isRequired,
+  store: PropTypes.observableObject.isRequired
 };
 
-export default inject(({store}) => {
-  return {adminActive: store.adminActive};
-})(observer(Quiz));
+export default inject(`store`)(observer(Quiz));

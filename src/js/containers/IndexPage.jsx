@@ -1,32 +1,30 @@
 import React from 'react';
-import {observer, inject, PropTypes} from 'mobx-react';
-import {bool, func} from 'prop-types';
+import {inject, observer, PropTypes} from 'mobx-react';
 
 import QuizLink from './../components/Quiz/Link';
 
-const IndexPage = ({stopMonitoringVotes, quizzes, adminActive}) => {
+const IndexPage = ({store}) => {
+
+  const {adminActive, quizzes, stopMonitoringQuiz} = store;
+
+  stopMonitoringQuiz();
 
   const classes = [`content`, `quiz-list`];
   adminActive ? classes.push(`monitoring`) : classes;
 
-  // in case you pop state with back button
-  // or came back with router
-  stopMonitoringVotes();
-
   return (
     <main className={classes.join(` `)}>
-      {quizzes.map(q => <QuizLink key={q.id} {...q} adminActive={adminActive} />)}
+      {
+        quizzes.map(q => {
+          return <QuizLink key={q.id} {...q} />;
+        })
+      }
     </main>
   );
 };
 
 IndexPage.propTypes = {
-  stopMonitoringVotes: func.isRequired,
-  quizzes: PropTypes.observableArray.isRequired,
-  adminActive: bool.isRequired,
+  store: PropTypes.observableObject.isRequired
 };
 
-export default inject(({store}) => {
-  const {stopMonitoringVotes, quizzes, adminActive} = store;
-  return {stopMonitoringVotes, quizzes, adminActive};
-})(observer(IndexPage));
+export default inject(`store`)(observer(IndexPage));

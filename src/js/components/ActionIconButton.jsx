@@ -3,6 +3,8 @@ import {func, string} from 'prop-types';
 
 import EditIcon from './Icon/EditIcon';
 import DeleteIcon from './Icon/DeleteIcon';
+import NewAnswerIcon from './Icon/NewAnswerIcon';
+import NewQuestionIcon from './Icon/NewQuestionIcon';
 
 const ActionIconButton = ({type, method, title}) => {
 
@@ -11,11 +13,10 @@ const ActionIconButton = ({type, method, title}) => {
 
   return (
     <button onClick={method} className={classes.join(` `)} title={title}>
-      {
-        type === `delete`
-          ? <DeleteIcon />
-          : <EditIcon />
-      }
+      {type === `delete` ? <DeleteIcon /> : null}
+      {type === `edit` ? <EditIcon /> : null}
+      {type === `new-answer` ? <NewAnswerIcon /> : null}
+      {type === `new-question` ? <NewQuestionIcon /> : null}
     </button>
   );
 

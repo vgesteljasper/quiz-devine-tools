@@ -260,6 +260,18 @@ body {
   }
 }
 
+.question_observer {
+
+  & .action-bar {
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  &:hover .action-bar {
+    opacity: 1;
+  }
+}
+
 .answer-list {
   margin-top: 2rem;
   display: flex;

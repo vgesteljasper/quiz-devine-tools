@@ -18,29 +18,29 @@ export const quizAPI =  {
         return response.json();
       });
   },
-  remove: id => {
+  remove: quizId => {
     const method = `DELETE`;
-    return fetch(`/api/quizzes/${id}`, {method})
+    return fetch(`/api/quizzes/${quizId}`, {method})
       .then(response => {
         if (response.status !== 204) throw new Error();
         return true;
       });
   },
-  toggleLive: (id, isLive) => {
+  togglePublished: (quizId, published) => {
     const method = `PATCH`;
     const body = new FormData();
-    body.append(`isLive`, isLive);
-    return fetch(`/api/quizzes/${id}`, {method, body})
+    body.append(`published`, published);
+    return fetch(`/api/quizzes/${quizId}`, {method, body})
       .then(response => {
         if (response.status !== 200) throw new Error();
         return true;
       });
   },
-  update: (id, name) => {
+  update: (quizId, name) => {
     const method = `PATCH`;
     const body = new FormData();
     body.append(`name`, name);
-    return fetch(`/api/quizzes/${id}`, {method, body})
+    return fetch(`/api/quizzes/${quizId}`, {method, body})
       .then(response => {
         if (response.status !== 200) throw new Error();
         return true;
@@ -49,8 +49,8 @@ export const quizAPI =  {
 };
 
 export const questionAPI = {
-  get: id => {
-    return fetch(`/api/questions?quizId=${id}&fields=question`)
+  get: () => {
+    return fetch(`/api/questions?isActive=true`)
       .then(response => {
         if (response.status !== 200) throw new Error();
         return response;
@@ -69,19 +69,19 @@ export const questionAPI = {
         return response.json();
       });
   },
-  remove: id => {
+  remove: questionId => {
     const method = `DELETE`;
-    return fetch(`/api/questions/${id}`, {method})
+    return fetch(`/api/questions/${questionId}`, {method})
       .then(response => {
         if (response.status !== 204) throw new Error();
         return true;
       });
   },
-  update: (id, question) => {
+  update: (questionId, question) => {
     const method = `PATCH`;
     const body = new FormData();
     body.append(`question`, question);
-    return fetch(`/api/questions/${id}`, {method, body})
+    return fetch(`/api/questions/${questionId}`, {method, body})
       .then(response => {
         if (response.status !== 200) throw new Error();
         return true;
@@ -90,8 +90,8 @@ export const questionAPI = {
 };
 
 export const answerAPI = {
-  get: id => {
-    return fetch(`/api/answers?questionId=${id}&fields=answer,votes,correct`)
+  get: () => {
+    return fetch(`/api/answers`)
       .then(response => {
         if (response.status !== 200) throw new Error();
         return response;
@@ -111,33 +111,33 @@ export const answerAPI = {
         return response.json();
       });
   },
-  remove: id => {
+  remove: answerId => {
     const method = `DELETE`;
-    return fetch(`/api/answers/${id}`, {method})
+    return fetch(`/api/answers/${answerId}`, {method})
       .then(response => {
         if (response.status !== 204) throw new Error();
         return true;
+      });
+  },
+  vote: answerId => {
+    const method = `PATCH`;
+    const body = new FormData();
+    body.append(`votesInc`, `+1`);
+    return fetch(`/api/answers/${answerId}?fields=votes`, {method, body})
+      .then(response => {
+        if (response.status !== 200) throw new Error();
+        return response.json();
       });
   }
 };
 
 export const voteAPI = {
-  get: id => {
-    return fetch(`/api/answers?questionId=${id}&fields=votes`)
+  get: questionId => {
+    return fetch(`/api/answers?questionId=${questionId}&fields=votes`)
       .then(response => {
         if (response.status !== 200) throw new Error();
         return response.json();
       })
       .then(results => results.answers);
-  },
-  voteUp: id => {
-    const method = `PATCH`;
-    const body = new FormData();
-    body.append(`votesInc`, `+1`);
-    return fetch(`/api/answers/${id}?fields=votes`, {method, body})
-      .then(response => {
-        if (response.status !== 200) throw new Error();
-        return response.json();
-      });
   }
 };

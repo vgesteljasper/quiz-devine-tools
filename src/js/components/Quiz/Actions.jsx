@@ -1,31 +1,34 @@
 import React from 'react';
-import {inject, observer} from 'mobx-react';
-import {func, string, bool} from 'prop-types';
+import {inject, observer, PropTypes} from 'mobx-react';
+import {object} from 'prop-types';
 import {default as swal} from 'sweetalert2';
 
 import Button from './../Button';
 import ActionIconButton from './../ActionIconButton';
 import LiveReloading from './../Icon/LiveReloading';
 
-const QuizActions = ({id, name, isLive, toggleLive, addQuestion, removeQuiz, editQuiz}) => {
+const QuizActions = ({quiz, store}) => {
+
+  const {id, name, published} = quiz;
+  const {removeQuiz, editQuiz, togglePublished, addQuestion, adminActive, stopMonitoringQuiz} = store;
 
   const sharedSettings = {
     showCancelButton: true,
     showLoaderOnConfirm: true
   };
 
-  const toggleLiveHandler = () => {
+  const togglePublishedHandler = () => {
     swal({
-      title: isLive ? `Unpublish this quiz?` : `Publish this quiz?`,
+      title: published ? `Unpublish this quiz?` : `Publish this quiz?`,
       text: name,
-      confirmButtonText: isLive ? `Unpublish` : `Publish`,
-      confirmButtonColor: isLive ? `#f82831` : `#3085d6`,
+      confirmButtonText: published ? `Unpublish` : `Publish`,
+      confirmButtonColor: published ? `#f82831` : `#3085d6`,
       ...sharedSettings
     })
     .then(() => {
-      toggleLive()
-      .then(() => swal(`Success`, `${isLive ? `Quiz is unpublished` : `Quiz is published`}`, `success`))
-      .catch(() => swal(`Error`, `Quiz couldn't be made live. Please try again.`, `error`));
+      togglePublished(id)
+        .then(() => swal(`Success`, `${published ? `Quiz is unpublished` : `Quiz is published`}`, `success`))
+        .catch(() => swal(`Error`, `Quiz couldn't be made live. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
   };
@@ -40,8 +43,8 @@ const QuizActions = ({id, name, isLive, toggleLive, addQuestion, removeQuiz, edi
     })
     .then(() => {
       removeQuiz(id)
-      // .then(() => swal(`Success`, `Quiz has been deleted.`, `success`))
-      .catch(() => swal(`Error`, `Quiz couldn't be deleted. Please try again.`, `error`));
+        .then(() => stopMonitoringQuiz())
+        .catch(() => swal(`Error`, `Quiz couldn't be deleted. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
   };
@@ -54,8 +57,7 @@ const QuizActions = ({id, name, isLive, toggleLive, addQuestion, removeQuiz, edi
       confirmButtonText: `Create`,
       ...sharedSettings
     }).then(name => {
-      addQuestion(name)
-        // .then(() => swal(`Success`, `Question has been added.`, `success`))
+      addQuestion(id, name)
         .catch(() => swal(`Error`, `Question couldn't be created. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
@@ -71,7 +73,6 @@ const QuizActions = ({id, name, isLive, toggleLive, addQuestion, removeQuiz, edi
       ...sharedSettings
     }).then(name => {
       editQuiz(id, name)
-        // .then(() => swal(`Success`, `Quiz has been updated.`, `success`))
         .catch(() => swal(`Error`, `Quiz couldn't be updated. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
@@ -79,26 +80,23 @@ const QuizActions = ({id, name, isLive, toggleLive, addQuestion, removeQuiz, edi
 
   return (
     <div className='action-bar action-bar_right'>
-      {isLive ? <LiveReloading /> : null}
-      <Button value={isLive ? `Unpublish Quiz` : `Publish Quiz`} type='small' color={isLive ? `red` : `blue`} method={toggleLiveHandler} />
-      <Button value='Add Question' type='small' method={addQuestionHandler} />
-      <ActionIconButton type='edit' method={editQuizHandler} title='Edit Quiz Name' />
-      <ActionIconButton type='delete' method={deleteQuizHandler} title='Delete Quiz' />
+      {
+        adminActive && published
+          ? <LiveReloading />
+          : null
+      }
+      <Button value={published ? `Unpublish Quiz` : `Publish Quiz`} type='small' color={published ? `red` : `blue`} method={togglePublishedHandler} />
+      <ActionIconButton title='New Question' type='new-question' method={addQuestionHandler} />
+      <ActionIconButton title='Edit Quiz Name' type='edit' method={editQuizHandler} />
+      <ActionIconButton title='Delete Quiz' type='delete' method={deleteQuizHandler} />
     </div>
   );
 
 };
 
 QuizActions.propTypes = {
-  id: string.isRequired,
-  name: string.isRequired,
-  isLive: bool.isRequired,
-  toggleLive: func.isRequired,
-  addQuestion: func.isRequired,
-  removeQuiz: func.isRequired,
-  editQuiz: func.isRequired
+  quiz: object.isRequired,
+  store: PropTypes.observableObject.isRequired
 };
 
-export default inject(({store}) => {
-  return {removeQuiz: store.removeQuiz, editQuiz: store.editQuiz};
-})(observer(QuizActions));
+export default inject(`store`)(observer(QuizActions));

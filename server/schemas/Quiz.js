@@ -6,7 +6,7 @@ const schema = {
     required: true,
     validation: Joi.string()
   },
-  isLive: {
+  published: {
     type: Boolean,
     default: false,
     validation: Joi.boolean()
