@@ -6,10 +6,11 @@ import DeleteIcon from './Icon/DeleteIcon';
 import NewAnswerIcon from './Icon/NewAnswerIcon';
 import NewQuestionIcon from './Icon/NewQuestionIcon';
 
-const ActionIconButton = ({type, method, title}) => {
+const ActionIconButton = ({type, method, title, color}) => {
 
   const classes = [`button`, `button_small`];
   type === `delete` ? classes.push(`button_delete`) : classes.push(`button_edit`);
+  color === `` ? null : classes.push(`button_${color}`);
 
   return (
     <button onClick={method} className={classes.join(` `)} title={title}>
@@ -25,7 +26,12 @@ const ActionIconButton = ({type, method, title}) => {
 ActionIconButton.propTypes = {
   type: string.isRequired,
   method: func.isRequired,
-  title: string.isRequired
+  title: string.isRequired,
+  color: string
+};
+
+ActionIconButton.defaultProps = {
+  color: ``
 };
 
 export default ActionIconButton;

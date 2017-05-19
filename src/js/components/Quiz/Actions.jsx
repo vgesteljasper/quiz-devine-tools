@@ -7,14 +7,21 @@ import Button from './../Button';
 import ActionIconButton from './../ActionIconButton';
 import LiveReloading from './../Icon/LiveReloading';
 
-const QuizActions = ({quiz, store}) => {
+const QuizActions = ({quiz, store, modal}) => {
 
   const {id, name, published} = quiz;
   const {removeQuiz, editQuiz, togglePublished, addQuestion, adminActive, stopMonitoringQuiz} = store;
+  const {popAlert} = modal;
 
   const sharedSettings = {
     showCancelButton: true,
     showLoaderOnConfirm: true
+  };
+
+  const alertOptions = {
+    title: `New Question`,
+    text: `What is the question?`,
+    type: `html`
   };
 
   const togglePublishedHandler = () => {
@@ -27,8 +34,7 @@ const QuizActions = ({quiz, store}) => {
     })
     .then(() => {
       togglePublished(id)
-        .then(() => swal(`Success`, `${published ? `Quiz is unpublished` : `Quiz is published`}`, `success`))
-        .catch(() => swal(`Error`, `Quiz couldn't be made live. Please try again.`, `error`));
+        .catch(() => swal(`Error`, `Error toggling quiz published. Please try again.`, `error`));
     })
     .catch(err => console.log(err));
   };
@@ -50,17 +56,13 @@ const QuizActions = ({quiz, store}) => {
   };
 
   const addQuestionHandler = () => {
-    swal({
-      title: `New question.`,
-      text: `What is the question?`,
-      input: `text`,
-      confirmButtonText: `Create`,
-      ...sharedSettings
-    }).then(name => {
-      addQuestion(id, name)
-        .catch(() => swal(`Error`, `Question couldn't be created. Please try again.`, `error`));
-    })
-    .catch(err => console.log(err));
+    // use draft-js to insert html for question
+    popAlert({...alertOptions, continueButtonText: `Create`})
+      .then(question => {
+        addQuestion(id, question)
+          .catch(() => swal(`Error`, `Question couldn't be created. Please try again.`, `error`));
+      })
+      .catch(err => console.log(err));
   };
 
   const editQuizHandler = () => {
@@ -96,7 +98,10 @@ const QuizActions = ({quiz, store}) => {
 
 QuizActions.propTypes = {
   quiz: object.isRequired,
-  store: PropTypes.observableObject.isRequired
+  store: PropTypes.observableObject.isRequired,
+  modal: PropTypes.observableObject.isRequired
 };
 
-export default inject(`store`)(observer(QuizActions));
+export default inject(({store, modal}) => {
+  return {store, modal};
+})(observer(QuizActions));

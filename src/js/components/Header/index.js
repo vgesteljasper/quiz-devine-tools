@@ -6,7 +6,7 @@ import {Link} from 'react-router-dom';
 
 const Header = () => (
   <header className='header'>
-    <div className='header__content width-limit'>
+    <div className='header__content'>
       <div className='header__left'>
         <DevineLogo />
         <Link to='/' className='header__title'>

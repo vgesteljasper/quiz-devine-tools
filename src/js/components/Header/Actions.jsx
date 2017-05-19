@@ -54,7 +54,6 @@ const HeaderActions = ({store}) => {
       }
       <Button
         value={adminActive ? `Admin (On)` : `Admin (off)`}
-        color={adminActive ? `red` : `blue`}
         method={toggleAdminActiveHandler}
       />
     </div>

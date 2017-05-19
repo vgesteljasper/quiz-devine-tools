@@ -34,9 +34,8 @@ const QuizPage = ({match, adminActive, quizzes}) => {
       </main>
     );
   } else {
-    return <Redirect to='/' />;
+    return null;
   }
-
 };
 
 QuizPage.propTypes = {

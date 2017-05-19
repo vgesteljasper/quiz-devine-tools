@@ -10,15 +10,15 @@ class Store {
   @observable questions = [];
   @observable answers = [];
 
-  @observable adminActive = false;
+  @observable adminActive = true;
 
   monitorInterval = 0
 
   constructor() {
     this._loadQuizzes()
       .then(() => this._loadQuestions())
-      .then(() => this._loadAnswers());
-      // .catch(err => console.log(err));
+      .then(() => this._loadAnswers())
+      .catch(err => console.log(err));
   }
 
   // *************************************************************************** QUIZ
@@ -150,17 +150,12 @@ class Store {
     this.questions.forEach(q => q.totalVotes = 0); // clear totalVotes
     this.answers.forEach(a => { // calculate totalVotes
       const question = this.questions.find(q => q.id === a.questionId);
-      question.totalVotes += a.votes;
+      if (question) question.totalVotes += a.votes;
     });
   }
 
   @action toggleAdminActive = () => {
     this.adminActive = !this.adminActive;
-  }
-
-  @action disableAnswers = questionId => {
-    const question = this.answers.find(q => q.id === questionId);
-    question.disable();
   }
 
   @action startMonitoringQuiz = quizId => {

@@ -5,11 +5,12 @@ import {render} from 'react-dom';
 import App from './containers/App';
 import {Provider} from 'mobx-react';
 
-import store from './store/';
+import store from './stores/';
+import modal from './stores/modal';
 
 const init = () => {
   render(
-    <Provider store={store}>
+    <Provider store={store} modal={modal}>
       <App />
     </Provider>,
     document.querySelector(`.react-mount`)

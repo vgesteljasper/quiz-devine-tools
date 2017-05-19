@@ -18,8 +18,8 @@ const AnswerStat = ({answer: answr, totalVotes, detail, store}) => {
 
   const deleteAnswerHandler = () => {
     swal({
-      title: `Are you sure you want to delete this answer?`,
-      text: answer,
+      title: `Delete Answer`,
+      text: `Are you sure you want to delete this answer?`,
       confirmButtonText: `Delete`,
       showCancelButton: true,
       showLoaderOnConfirm: true,
@@ -36,15 +36,18 @@ const AnswerStat = ({answer: answr, totalVotes, detail, store}) => {
   return (
     <div className='stat'>
       <div className='stat__visual'>
-        <h5 className='stat__answer'>
+        <div className='stat__answer'>
           <Detail value={detail} />
-          <span>{answer} {correct ? ` (True)` : ` (False)`}</span>
-        </h5>
-        <span className='stat__votes'>{votes}</span>
+          <span className='stat__content' dangerouslySetInnerHTML={{__html: answer}}></span>
+        </div>
+        <div className='stat__data'>
+          <span className='stat__correct' >{correct ? ` True` : ` False`}</span>
+          <span className='stat__votes'>{votes}</span>
+        </div>
         <div className='stat__bar' style={styles}></div>
       </div>
       <div className='action-bar action-bar_answer action-bar_right'>
-        <ActionIconButton type='delete' title='Delete Answer' method={deleteAnswerHandler} />
+        <ActionIconButton type='delete' title='Delete Answer' color='transparent' method={deleteAnswerHandler} />
       </div>
     </div>
   );

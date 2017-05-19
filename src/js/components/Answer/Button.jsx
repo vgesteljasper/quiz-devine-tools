@@ -22,7 +22,7 @@ const AnswerButton = ({answer: answr, question: quest, enabled, detail, store}) 
       className={classes.join(` `)}
     >
       <Detail value={detail} />
-      <span>{answer}</span>
+      <div className='button__content' dangerouslySetInnerHTML={{__html: answer}}></div>
     </button>
   );
 };

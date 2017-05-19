@@ -7,11 +7,13 @@ import Header from './../components/Header/';
 import Footer from './../components/Footer';
 import IndexPage from './IndexPage';
 import QuizPage from './QuizPage';
+import Modal from './../components/Modal';
 
 const App = () => (
   <Router>
     <div className='router-child'>
       <Header />
+      <Modal />
       <Switch>
         <Route exact path='/' component={IndexPage} />
         <Route exact path='/quiz/:id' render={({match}) => <QuizPage match={match} />} />

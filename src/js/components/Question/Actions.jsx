@@ -5,11 +5,17 @@ import {default as swal} from 'sweetalert2';
 
 import ActionIconButton from './../ActionIconButton';
 
-const QuestionActions = ({question: quest, store}) => {
+const QuestionActions = ({question: quest, store, modal}) => {
 
   const sharedSettings = {
     showCancelButton: true,
     showLoaderOnConfirm: true
+  };
+
+  const alertOptions = {
+    title: `New Answer`,
+    text: `What is the answer?`,
+    type: `html`
   };
 
   const {id, question} = quest;
@@ -17,8 +23,8 @@ const QuestionActions = ({question: quest, store}) => {
 
   const deleteQuestionHandler = () => {
     swal({
-      title: `Are you sure you want to delete this question?`,
-      text: question,
+      title: `Delete Question`,
+      text: `Are you sure you want to delete this question?`,
       confirmButtonText: `Delete`,
       confirmButtonColor: `#f82831`,
       ...sharedSettings
@@ -31,28 +37,22 @@ const QuestionActions = ({question: quest, store}) => {
   };
 
   const addAnswerHandler = () => {
-    swal.setDefaults({
-      title: `New answer.`,
-      ...sharedSettings
-    });
-    const steps = [
-      {
-        input: `text`,
-        text: `What is the answer?`,
-        confirmButtonText: `Next`
-      },
-      {
-        input: `select`,
-        text: `Is the answer correct?`,
-        inputOptions: {false: `No`, true: `Yes`},
-        confirmButtonText: `Create`,
-      }
-    ];
-    swal.queue(steps).then(result => {
-      swal.resetDefaults();
-      addAnswer(id, ...result)
-        .catch(() => swal(`Error`, `Answer couldn't be created. Please try again.`, `error`));
-    }, () => swal.resetDefaults());
+    modal.popAlert(alertOptions)
+      .then(answer => {
+        swal({
+          title: `New Answer.`,
+          text: `Is the answer correct?`,
+          input: `select`,
+          inputOptions: {false: `No`, true: `Yes`},
+          confirmButtonText: `Create`,
+          ...sharedSettings
+        }).then(correct => {
+          addAnswer(id, answer, correct)
+            .catch(() => swal(`Error`, `Answer couldn't be created. Please try again.`, `error`));
+        })
+        .catch(err => console.log(err));
+      })
+      .catch(err => console.log(err));
   };
 
   const editQuestionHandler = () => {
@@ -72,9 +72,9 @@ const QuestionActions = ({question: quest, store}) => {
 
   return (
     <div className='action-bar action-bar_quiz action-bar_right'>
-      <ActionIconButton type='new-answer' title='New Answer' method={addAnswerHandler} />
-      <ActionIconButton type='edit' title='Edit Question' method={editQuestionHandler} />
-      <ActionIconButton type='delete' title='Delete Question' method={deleteQuestionHandler} />
+      <ActionIconButton type='new-answer' title='New Answer' color='transparent' method={addAnswerHandler} />
+      <ActionIconButton type='edit' title='Edit Question' color='transparent' method={editQuestionHandler} />
+      <ActionIconButton type='delete' title='Delete Question' color='transparent' method={deleteQuestionHandler} />
     </div>
   );
 
@@ -82,7 +82,10 @@ const QuestionActions = ({question: quest, store}) => {
 
 QuestionActions.propTypes = {
   question: object.isRequired,
-  store: PropTypes.observableObject.isRequired
+  store: PropTypes.observableObject.isRequired,
+  modal: PropTypes.observableObject.isRequired
 };
 
-export default inject(`store`)(QuestionActions);
+export default inject(({store, modal}) => {
+  return {store, modal};
+})(QuestionActions);

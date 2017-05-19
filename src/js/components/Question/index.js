@@ -31,7 +31,7 @@ const Question = ({question: quest, store}) => {
   return (
     <div className={questionClasses.join(` `)}>
       <div className='question__top'>
-        <h4 className='question__name'>{question}</h4>
+        <h4 className='question__name' dangerouslySetInnerHTML={{__html: question}}></h4>
         {adminActive ? <QuestionActions question={quest} /> : null}
       </div>
       <div className={answerListClasses.join(` `)}>
