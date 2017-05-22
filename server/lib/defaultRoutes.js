@@ -98,6 +98,8 @@ module.exports = Model => {
 
     read: (req, res) => {
 
+      if (req.query.perPage === 20) req.query.perPage = 1000;
+
       // parse querystrings (filtering, fields, sorting etc...)
       parseQuery(Model, req.query)
         .then(({sort, skip, limit, fields: f, meta, filter}) => {
